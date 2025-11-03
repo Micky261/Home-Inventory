@@ -69,17 +69,44 @@ try {
             // Read and execute SQL file
             $sql = file_get_contents($file);
 
-            // Split by semicolons, but keep them simple (SQLite compatible)
+            // Remove comments and split by semicolons
+            $lines = explode("\n", $sql);
+            $cleanedLines = [];
+            foreach ($lines as $line) {
+                $line = trim($line);
+                // Skip empty lines and comment lines
+                if (empty($line) || substr($line, 0, 2) === '--') {
+                    continue;
+                }
+                $cleanedLines[] = $line;
+            }
+
+            $cleanedSql = implode("\n", $cleanedLines);
             $statements = array_filter(
-                array_map('trim', explode(';', $sql)),
+                array_map('trim', explode(';', $cleanedSql)),
                 function($stmt) {
-                    return !empty($stmt) && !preg_match('/^--/', $stmt);
+                    return !empty($stmt);
                 }
             );
 
+            $statementCount = 0;
             foreach ($statements as $statement) {
                 if (empty($statement)) continue;
-                $pdo->exec($statement);
+
+                try {
+                    $pdo->exec($statement);
+                    $statementCount++;
+                } catch (PDOException $e) {
+                    // Check if it's a "no such table" error during INSERT
+                    // This is expected when migrating from scratch
+                    if (strpos($e->getMessage(), 'no such table') !== false &&
+                        stripos($statement, 'INSERT') !== false) {
+                        // Ignore - table doesn't exist, nothing to copy
+                        continue;
+                    }
+                    // Re-throw other errors
+                    throw $e;
+                }
             }
 
             // Record migration as executed
@@ -87,12 +114,14 @@ try {
             $stmt->execute([$migrationName]);
 
             $pdo->commit();
-            echo "  ✓ Successfully executed\n\n";
+            echo "  ✓ Successfully executed ({$statementCount} statements)\n\n";
             $executedCount++;
 
         } catch (Exception $e) {
             $pdo->rollBack();
             echo "  ✗ Failed: " . $e->getMessage() . "\n\n";
+            echo "  Statement that failed:\n";
+            echo "  " . substr($statement ?? 'unknown', 0, 100) . "...\n\n";
             exit(1);
         }
     }
