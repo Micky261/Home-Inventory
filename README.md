@@ -68,44 +68,65 @@ Each inventory item includes:
      ]
      ```
 
-3. **Configure web server**:
+3. **Start the PHP development server**:
 
-   **For XAMPP/Apache**:
-   - Place the project in your htdocs directory
-   - Access via: `http://localhost/HomeInventoryClaude/backend/public/`
-   - Make sure `mod_rewrite` is enabled
-   - The `.htaccess` file is already configured
+   **On Windows:**
+   - Double-click `start-backend.bat` in the project root
+   - Or run from CMD/PowerShell:
+     ```cmd
+     start-backend.bat
+     ```
+   - Server will start at `http://localhost:9000`
 
-   **For Nginx**:
-   ```nginx
-   server {
-       listen 80;
-       server_name localhost;
-       root /path/to/HomeInventoryClaude/backend/public;
-       index index.php;
-
-       location / {
-           try_files $uri $uri/ /index.php?$query_string;
-       }
-
-       location ~ \.php$ {
-           fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
-           fastcgi_index index.php;
-           include fastcgi_params;
-           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-       }
-   }
-   ```
-
-4. **Set proper permissions**:
+   **On Linux/Mac:**
    ```bash
-   chmod -R 755 uploads/
-   chmod -R 755 database/
+   cd backend/public
+   php -S localhost:9000 router.php
    ```
 
-5. **Test the API**:
-   - Visit `http://localhost/HomeInventoryClaude/backend/public/api/items`
+4. **Test the API**:
+   - Visit `http://localhost:9000/api/items`
    - You should get a 401 Unauthorized response (this is expected without auth)
+
+<details>
+<summary><strong>Alternative: Apache/Nginx Setup (Optional)</strong></summary>
+
+If you prefer using Apache or Nginx instead of PHP's built-in server:
+
+**For XAMPP/Apache**:
+- Place the project in your htdocs directory
+- Access via: `http://localhost/HomeInventoryClaude/backend/public/`
+- Make sure `mod_rewrite` is enabled
+- The `.htaccess` file is already configured
+- Update `frontend/src/app/services/api.service.ts` API URLs accordingly
+
+**For Nginx**:
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+    root /path/to/HomeInventoryClaude/backend/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+}
+```
+
+**Set proper permissions**:
+```bash
+chmod -R 755 uploads/
+chmod -R 755 database/
+```
+</details>
 
 ### Frontend Setup
 
@@ -146,10 +167,27 @@ This project uses **Yarn Berry (v4)** via Corepack. See `frontend/SETUP.md` for 
 
 ## Usage
 
+### Starting the Application
+
+1. **Start Backend** (in Windows CMD/PowerShell):
+   ```cmd
+   start-backend.bat
+   ```
+   Backend will run at `http://localhost:9000`
+
+2. **Start Frontend** (in WSL2/terminal):
+   ```bash
+   cd frontend
+   yarn start
+   ```
+   Frontend will run at `http://localhost:4200`
+
+### Using the Application
+
 1. **Login**:
    - Navigate to `http://localhost:4200`
    - Enter username: `admin`
-   - Enter the password you configured in `backend/config/config.php`
+   - Enter the password you configured in `backend/config/config.php` (default: `admin123`)
 
 2. **Add Items**:
    - Click the "Add Item" button
