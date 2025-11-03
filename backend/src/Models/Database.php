@@ -26,14 +26,18 @@ class Database
             $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
             if ($isNewDb) {
-                $this->createTables();
+                $this->createInitialSchema();
             }
         } catch (PDOException $e) {
             throw new \Exception('Database connection failed: ' . $e->getMessage());
         }
     }
 
-    private function createTables()
+    /**
+     * Create initial schema for new databases
+     * For existing databases, use migrations (run migrate.php)
+     */
+    private function createInitialSchema()
     {
         // Locations table with hierarchical support
         $this->pdo->exec('
@@ -66,7 +70,7 @@ class Database
             )
         ');
 
-        // Items table (kategorie_id now references categories table)
+        // Items table
         $this->pdo->exec('
             CREATE TABLE IF NOT EXISTS items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,9 +82,9 @@ class Database
                 haendler TEXT,
                 preis REAL,
                 link TEXT,
-                datenblatt_type TEXT, -- "file" or "url"
-                datenblatt_value TEXT, -- filename or URL
-                bild TEXT, -- filename
+                datenblatt_type TEXT,
+                datenblatt_value TEXT,
+                bild TEXT,
                 notizen TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -100,6 +104,7 @@ class Database
             )
         ');
 
+        // Create indexes
         $this->pdo->exec('
             CREATE INDEX IF NOT EXISTS idx_items_name ON items(name);
             CREATE INDEX IF NOT EXISTS idx_items_kategorie ON items(kategorie_id);
@@ -109,40 +114,14 @@ class Database
             CREATE INDEX IF NOT EXISTS idx_item_tags_tag ON item_tags(tag_id);
         ');
 
-        $this->migrateExistingData();
-    }
-
-    private function migrateExistingData()
-    {
-        // Check if we need to migrate from old schema (kategorie as TEXT)
-        try {
-            $stmt = $this->pdo->query("PRAGMA table_info(items)");
-            $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $hasKategorieText = false;
-            foreach ($columns as $column) {
-                if ($column['name'] === 'kategorie' && strpos(strtolower($column['type']), 'text') !== false) {
-                    $hasKategorieText = true;
-                    break;
-                }
-            }
-
-            if ($hasKategorieText) {
-                // Migrate existing categories to categories table
-                $stmt = $this->pdo->query("SELECT DISTINCT kategorie FROM items WHERE kategorie IS NOT NULL AND kategorie != ''");
-                $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-                $insertStmt = $this->pdo->prepare("INSERT OR IGNORE INTO categories (name) VALUES (?)");
-                foreach ($categories as $category) {
-                    $insertStmt->execute([$category]);
-                }
-
-                // Note: Full migration would require recreating the table
-                // For now, we'll keep both columns and handle it in the model
-            }
-        } catch (\Exception $e) {
-            // Migration not needed or already done
-        }
+        // Create migrations table
+        $this->pdo->exec('
+            CREATE TABLE IF NOT EXISTS migrations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                migration TEXT NOT NULL UNIQUE,
+                executed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ');
     }
 
     public function getConnection()

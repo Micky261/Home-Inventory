@@ -128,6 +128,33 @@ chmod -R 755 database/
 ```
 </details>
 
+### Database Migrations
+
+**Important**: If you're updating an existing installation, you need to run database migrations to apply schema changes.
+
+**On Windows:**
+```cmd
+# Simply double-click migrate.bat in the project root
+# Or run from command line:
+migrate.bat
+```
+
+**On Linux/Mac:**
+```bash
+cd backend
+php migrate.php
+```
+
+The migration system will:
+- Create new tables (categories, tags, item_tags)
+- Add the `path` column to locations for hierarchical support
+- Update the items table structure
+- Preserve all existing data
+
+**Migration files are located in**: `backend/migrations/`
+
+**See**: `backend/migrations/README.md` for detailed migration documentation.
+
 ### Frontend Setup
 
 This project uses **Yarn Berry (v4)** via Corepack. See `frontend/SETUP.md` for detailed Yarn setup.
