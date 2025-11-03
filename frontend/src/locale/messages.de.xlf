@@ -550,5 +550,31 @@
         <target>Schließen</target>
       </segment>
     </unit>
+
+    <!-- Settings Color Palette -->
+    <unit id="settings.selectColor">
+      <segment>
+        <source>Select Color</source>
+        <target>Farbe wählen</target>
+      </segment>
+    </unit>
+    <unit id="settings.standardColors">
+      <segment>
+        <source>Standard Colors</source>
+        <target>Standardfarben</target>
+      </segment>
+    </unit>
+    <unit id="settings.customColors">
+      <segment>
+        <source>Custom Colors</source>
+        <target>Eigene Farben</target>
+      </segment>
+    </unit>
+    <unit id="settings.customColorPicker">
+      <segment>
+        <source>Or custom color</source>
+        <target>Oder eigene Farbe</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

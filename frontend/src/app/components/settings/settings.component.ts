@@ -174,15 +174,58 @@ import { Category, Location, Tag } from '../../models/item.model';
               i18n-placeholder="@@settings.newTag"
               (keyup.enter)="addTag()"
             />
-            <input
-              type="color"
-              [(ngModel)]="newTagColor"
-              title="Farbe"
-              i18n-title="@@settings.color"
-            />
+            <div class="color-selector">
+              <div class="color-preview" [style.background-color]="newTagColor"></div>
+              <button
+                class="btn btn-sm btn-secondary"
+                (click)="showColorPicker = !showColorPicker"
+                i18n="@@settings.selectColor"
+              >
+                {{ showColorPicker ? 'Schließen' : 'Farbe wählen' }}
+              </button>
+            </div>
             <button class="btn btn-success" (click)="addTag()" i18n="@@settings.add">
               Hinzufügen
             </button>
+          </div>
+
+          <!-- Color Palette -->
+          <div *ngIf="showColorPicker" class="color-palette">
+            <div class="palette-section">
+              <label i18n="@@settings.standardColors">Standardfarben:</label>
+              <div class="color-grid">
+                <button
+                  *ngFor="let color of predefinedColors"
+                  class="color-swatch"
+                  [style.background-color]="color"
+                  [class.selected]="newTagColor === color"
+                  (click)="selectColor(color)"
+                  [title]="color"
+                ></button>
+              </div>
+            </div>
+            <div class="palette-section" *ngIf="customColors.length > 0">
+              <label i18n="@@settings.customColors">Eigene Farben:</label>
+              <div class="color-grid">
+                <button
+                  *ngFor="let color of customColors"
+                  class="color-swatch"
+                  [style.background-color]="color"
+                  [class.selected]="newTagColor === color"
+                  (click)="selectColor(color)"
+                  [title]="color"
+                ></button>
+              </div>
+            </div>
+            <div class="palette-section">
+              <label i18n="@@settings.customColorPicker">Oder eigene Farbe:</label>
+              <input
+                type="color"
+                [(ngModel)]="newTagColor"
+                title="Farbe"
+                i18n-title="@@settings.color"
+              />
+            </div>
           </div>
 
           <div class="items-list">
@@ -197,10 +240,34 @@ import { Category, Location, Tag } from '../../models/item.model';
                   (keyup.enter)="saveTag(tag.id)"
                   (keyup.escape)="cancelEdit()"
                 />
-                <input
-                  type="color"
-                  [(ngModel)]="editTagColor"
-                />
+                <div class="color-preview-small" [style.background-color]="editTagColor"></div>
+
+                <!-- Color palette for edit mode -->
+                <div class="edit-color-palette">
+                  <div class="color-grid-compact">
+                    <button
+                      *ngFor="let color of predefinedColors"
+                      class="color-swatch-small"
+                      [style.background-color]="color"
+                      [class.selected]="editTagColor === color"
+                      (click)="selectEditColor(color)"
+                      [title]="color"
+                    ></button>
+                    <button
+                      *ngFor="let color of customColors"
+                      class="color-swatch-small custom"
+                      [style.background-color]="color"
+                      [class.selected]="editTagColor === color"
+                      (click)="selectEditColor(color)"
+                      [title]="color"
+                    ></button>
+                  </div>
+                  <input
+                    type="color"
+                    [(ngModel)]="editTagColor"
+                    class="color-picker-inline"
+                  />
+                </div>
               </div>
               <div class="item-actions">
                 <button
@@ -353,6 +420,151 @@ import { Category, Location, Tag } from '../../models/item.model';
       color: #95a5a6;
       font-style: italic;
     }
+
+    /* Color Selector Styles */
+    .color-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .color-preview {
+      width: 38px;
+      height: 38px;
+      border-radius: 4px;
+      border: 2px solid #ddd;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .color-preview-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      border: 2px solid #ddd;
+      flex-shrink: 0;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 14px;
+      height: 38px;
+    }
+
+    .color-palette {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .palette-section {
+      margin-bottom: 15px;
+    }
+
+    .palette-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .palette-section label {
+      display: block;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 36px);
+      gap: 8px;
+    }
+
+    .color-swatch {
+      width: 36px;
+      height: 36px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+      border-color: #333;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .color-swatch.selected {
+      border: 3px solid #333;
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px #333;
+    }
+
+    .edit-color-palette {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 4px;
+      max-width: 400px;
+    }
+
+    .color-grid-compact {
+      display: grid;
+      grid-template-columns: repeat(10, 24px);
+      gap: 4px;
+    }
+
+    .color-swatch-small {
+      width: 24px;
+      height: 24px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+    }
+
+    .color-swatch-small:hover {
+      transform: scale(1.15);
+      border-color: #333;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .color-swatch-small.selected {
+      border: 2px solid #333;
+      box-shadow: 0 0 0 1px #fff, 0 0 0 3px #333;
+    }
+
+    .color-swatch-small.custom {
+      border: 2px solid #9c27b0;
+    }
+
+    .color-picker-inline {
+      width: 80px;
+      height: 32px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      align-self: flex-start;
+    }
+
+    .edit-tag {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .edit-tag input[type="text"] {
+      flex: 1;
+      min-width: 150px;
+    }
   `]
 })
 export class SettingsComponent implements OnInit {
@@ -366,6 +578,32 @@ export class SettingsComponent implements OnInit {
   newLocationParent: number | null = null;
   newTag = '';
   newTagColor = '#3498db';
+
+  // Predefined color palette (Material Design inspired)
+  predefinedColors = [
+    '#f44336', // Red
+    '#e91e63', // Pink
+    '#9c27b0', // Purple
+    '#673ab7', // Deep Purple
+    '#3f51b5', // Indigo
+    '#2196f3', // Blue
+    '#03a9f4', // Light Blue
+    '#00bcd4', // Cyan
+    '#009688', // Teal
+    '#4caf50', // Green
+    '#8bc34a', // Light Green
+    '#cddc39', // Lime
+    '#ffeb3b', // Yellow
+    '#ffc107', // Amber
+    '#ff9800', // Orange
+    '#ff5722', // Deep Orange
+    '#795548', // Brown
+    '#607d8b', // Blue Grey
+    '#9e9e9e', // Grey
+    '#000000'  // Black
+  ];
+
+  showColorPicker = false;
 
   editingCategory: number | null = null;
   editCategoryName = '';
@@ -565,5 +803,23 @@ export class SettingsComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/items']);
+  }
+
+  // Get custom colors that are already used but not in predefined palette
+  get customColors(): string[] {
+    const usedColors = this.tags.map(tag => tag.color.toLowerCase());
+    const predefinedLower = this.predefinedColors.map(c => c.toLowerCase());
+    const custom = usedColors.filter(color => !predefinedLower.includes(color));
+    // Return unique colors
+    return [...new Set(custom)];
+  }
+
+  selectColor(color: string) {
+    this.newTagColor = color;
+    this.showColorPicker = false;
+  }
+
+  selectEditColor(color: string) {
+    this.editTagColor = color;
   }
 }
