@@ -134,13 +134,21 @@ export class ApiService {
   }
 
   createLocation(name: string, parent_id?: number): Observable<Location> {
-    return this.http.post<Location>(`${this.apiUrl}/locations`, { name, parent_id }, {
+    const body: any = { name };
+    if (parent_id !== undefined && parent_id !== null) {
+      body.parent_id = parent_id;
+    }
+    return this.http.post<Location>(`${this.apiUrl}/locations`, body, {
       headers: this.getHeaders()
     });
   }
 
   updateLocation(id: number, name: string, parent_id?: number): Observable<Location> {
-    return this.http.put<Location>(`${this.apiUrl}/locations/${id}`, { name, parent_id }, {
+    const body: any = { name };
+    if (parent_id !== undefined && parent_id !== null) {
+      body.parent_id = parent_id;
+    }
+    return this.http.put<Location>(`${this.apiUrl}/locations/${id}`, body, {
       headers: this.getHeaders()
     });
   }

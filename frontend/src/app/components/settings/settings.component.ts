@@ -452,7 +452,8 @@ export class SettingsComponent implements OnInit {
   addLocation() {
     if (!this.newLocation.trim()) return;
 
-    this.apiService.createLocation(this.newLocation, this.newLocationParent || undefined).subscribe({
+    const parentId = this.newLocationParent ? Number(this.newLocationParent) : undefined;
+    this.apiService.createLocation(this.newLocation, parentId).subscribe({
       next: () => {
         this.newLocation = '';
         this.newLocationParent = null;
@@ -474,7 +475,8 @@ export class SettingsComponent implements OnInit {
   saveLocation(id: number) {
     if (!this.editLocationName.trim()) return;
 
-    this.apiService.updateLocation(id, this.editLocationName, this.editLocationParent || undefined).subscribe({
+    const parentId = this.editLocationParent ? Number(this.editLocationParent) : undefined;
+    this.apiService.updateLocation(id, this.editLocationName, parentId).subscribe({
       next: () => {
         this.editingLocation = null;
         this.loadData();
