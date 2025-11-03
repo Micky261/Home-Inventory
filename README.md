@@ -1,0 +1,304 @@
+# Home Inventory System
+
+A comprehensive home inventory management system built with PHP (Slim Framework), SQLite, and Angular.
+
+## Features
+
+- **Item Management**: Create, edit, delete, and view inventory items
+- **Search & Filter**: Search by name, category, or location
+- **Autocomplete**: Smart autocomplete for item names
+- **File Uploads**: Upload images and datasheets (or use URLs)
+- **Location Management**: Automatically manage storage locations
+- **Multi-language**: German and English translations (i18n)
+- **Simple Authentication**: Single-user authentication with configurable credentials
+
+## Item Attributes
+
+Each inventory item includes:
+- **Name** (required, with autocomplete)
+- **Kategorie** (Category)
+- **Ort** (Location - dropdown with ability to create new)
+- **Menge** (Quantity)
+- **Einheit** (Unit)
+- **Händler** (Retailer)
+- **Preis** (Price)
+- **Link** (URL)
+- **Datenblatt** (Datasheet - file upload or URL)
+- **Bild** (Image upload)
+- **Notizen** (Notes)
+
+## Tech Stack
+
+### Backend
+- PHP 7.4+
+- Slim Framework 4
+- SQLite database
+- PSR-7/PSR-15 standards
+
+### Frontend
+- Angular 17
+- Standalone components
+- Angular i18n for translations
+- Responsive CSS
+
+## Installation
+
+### Prerequisites
+
+- PHP 7.4 or higher with PDO SQLite extension
+- Composer
+- Node.js 18+ and npm
+- Apache/Nginx web server (or use XAMPP)
+
+### Backend Setup
+
+1. **Install PHP dependencies**:
+   ```bash
+   cd backend
+   composer install
+   ```
+
+2. **Configure authentication**:
+   - Copy `backend/config/config.example.php` to `backend/config/config.php` (if not exists)
+   - Edit `backend/config/config.php` and change the default password:
+     ```php
+     'auth' => [
+         'username' => 'admin',
+         'password' => 'YOUR_SECURE_PASSWORD_HERE'
+     ]
+     ```
+
+3. **Configure web server**:
+
+   **For XAMPP/Apache**:
+   - Place the project in your htdocs directory
+   - Access via: `http://localhost/HomeInventoryClaude/backend/public/`
+   - Make sure `mod_rewrite` is enabled
+   - The `.htaccess` file is already configured
+
+   **For Nginx**:
+   ```nginx
+   server {
+       listen 80;
+       server_name localhost;
+       root /path/to/HomeInventoryClaude/backend/public;
+       index index.php;
+
+       location / {
+           try_files $uri $uri/ /index.php?$query_string;
+       }
+
+       location ~ \.php$ {
+           fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+           fastcgi_index index.php;
+           include fastcgi_params;
+           fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+       }
+   }
+   ```
+
+4. **Set proper permissions**:
+   ```bash
+   chmod -R 755 uploads/
+   chmod -R 755 database/
+   ```
+
+5. **Test the API**:
+   - Visit `http://localhost/HomeInventoryClaude/backend/public/api/items`
+   - You should get a 401 Unauthorized response (this is expected without auth)
+
+### Frontend Setup
+
+1. **Install dependencies**:
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. **Update API URL** (if needed):
+   - Edit `frontend/src/app/services/api.service.ts`
+   - Update `apiUrl` and `uploadUrl` to match your backend URL:
+     ```typescript
+     private apiUrl = 'http://localhost/HomeInventoryClaude/backend/public/api';
+     private uploadUrl = 'http://localhost/HomeInventoryClaude/backend/public';
+     ```
+
+3. **Start development server**:
+   ```bash
+   npm start
+   ```
+   The application will open at `http://localhost:4200`
+
+4. **Build for production** (optional):
+   ```bash
+   npm run build
+   ```
+   Output will be in `frontend/dist/home-inventory/`
+
+## Usage
+
+1. **Login**:
+   - Navigate to `http://localhost:4200`
+   - Enter username: `admin`
+   - Enter the password you configured in `backend/config/config.php`
+
+2. **Add Items**:
+   - Click the "Add Item" button
+   - Fill in the item details
+   - Upload images or datasheets (optional)
+   - Click "Save"
+
+3. **Search & Filter**:
+   - Use the search bar to find items by name, category, or location
+   - Use the dropdown filters for category and location
+   - Search updates automatically as you type
+
+4. **Edit/Delete Items**:
+   - Click the edit icon (✏️) to modify an item
+   - Click the trash icon (🗑️) to delete an item
+   - Click link icon (🔗) to open product URL
+   - Click document icon (📄) to view datasheet
+
+5. **Manage Locations**:
+   - When adding/editing an item, select "+ New Location" from the location dropdown
+   - Enter the new location name
+   - The location will be created automatically when you save the item
+
+## Language Support
+
+The application supports German and English. To build with specific language:
+
+```bash
+# German version (default)
+ng build --configuration production --localize
+
+# English version only
+ng build --configuration production --locale en
+
+# German version only
+ng build --configuration production --locale de
+```
+
+For development, the app uses English by default. To extract new translations:
+
+```bash
+ng extract-i18n --output-path src/locale
+```
+
+## Database
+
+The SQLite database is created automatically on first run at `database/inventory.db`.
+
+### Schema
+
+**items table**:
+- id, name, kategorie, ort_id, menge, einheit, haendler, preis
+- link, datenblatt_type, datenblatt_value, bild, notizen
+- created_at, updated_at
+
+**locations table**:
+- id, name, created_at
+
+## File Uploads
+
+- **Images**: Stored in `uploads/images/` (max 10MB, JPG/PNG/GIF/WebP)
+- **Datasheets**: Stored in `uploads/datasheets/` (max 10MB, PDF/DOC/DOCX)
+- Files are automatically deleted when items are removed
+
+## Security Notes
+
+This is a single-user, locally-hosted system with basic security:
+- Simple token-based authentication (base64 encoded credentials)
+- Password stored in config file (not hashed)
+- Suitable for local, trusted environments only
+- **NOT recommended for production/internet-facing deployments**
+
+For production use, consider:
+- Implementing proper password hashing (bcrypt/Argon2)
+- Using JWT tokens with expiration
+- Adding HTTPS/TLS
+- Implementing rate limiting
+- Adding CSRF protection
+
+## Troubleshooting
+
+### Backend Issues
+
+1. **500 Internal Server Error**:
+   - Check PHP error logs
+   - Ensure SQLite extension is enabled: `php -m | grep pdo_sqlite`
+   - Verify file permissions on `database/` and `uploads/` directories
+
+2. **CORS errors**:
+   - Update `backend/config/config.php` with correct frontend URL
+   - Ensure Apache mod_headers is enabled
+
+3. **Database not created**:
+   - Check write permissions on `database/` directory
+   - Manually create: `touch database/inventory.db && chmod 666 database/inventory.db`
+
+### Frontend Issues
+
+1. **API connection failed**:
+   - Verify backend is running and accessible
+   - Check API URLs in `api.service.ts`
+   - Check browser console for CORS errors
+
+2. **Build errors**:
+   - Delete `node_modules` and `package-lock.json`
+   - Run `npm install` again
+   - Clear Angular cache: `rm -rf .angular`
+
+## Project Structure
+
+```
+HomeInventoryClaude/
+├── backend/
+│   ├── config/
+│   │   ├── config.php (create from config.example.php)
+│   │   └── config.example.php
+│   ├── public/
+│   │   ├── .htaccess
+│   │   └── index.php
+│   ├── src/
+│   │   ├── Controllers/
+│   │   ├── Middleware/
+│   │   └── Models/
+│   └── composer.json
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/
+│   │   │   ├── models/
+│   │   │   ├── services/
+│   │   │   ├── app.component.ts
+│   │   │   └── app.config.ts
+│   │   ├── locale/
+│   │   ├── index.html
+│   │   ├── main.ts
+│   │   └── styles.css
+│   ├── angular.json
+│   ├── package.json
+│   └── tsconfig.json
+├── database/
+│   └── inventory.db (auto-created)
+├── uploads/
+│   ├── images/
+│   └── datasheets/
+└── README.md
+```
+
+## License
+
+This project is provided as-is for personal use.
+
+## Contributing
+
+This is a personal inventory system. Feel free to fork and modify for your own needs.
+
+## Support
+
+For issues or questions, please check:
+1. This README for setup instructions
+2. PHP and Angular error logs
+3. Browser console for frontend errors

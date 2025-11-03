@@ -1,0 +1,31 @@
+# Dependencies
+backend/vendor/
+frontend/node_modules/
+frontend/.angular/
+
+# Database
+database/*.db
+database/*.db-journal
+
+# Uploads (optional - you may want to track these)
+uploads/images/*
+uploads/datasheets/*
+!uploads/images/.gitkeep
+!uploads/datasheets/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+backend/config/config.php

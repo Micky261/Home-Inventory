@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="de">
+  <file id="ngi18n" original="ng.template">
+    <unit id="app.title">
+      <segment>
+        <source>Home Inventory System</source>
+        <target>Heiminventar-System</target>
+      </segment>
+    </unit>
+    <unit id="app.logout">
+      <segment>
+        <source>Logout</source>
+        <target>Abmelden</target>
+      </segment>
+    </unit>
+    <unit id="app.loading">
+      <segment>
+        <source>Loading...</source>
+        <target>Lädt...</target>
+      </segment>
+    </unit>
+    <unit id="login.title">
+      <segment>
+        <source>Login</source>
+        <target>Anmelden</target>
+      </segment>
+    </unit>
+    <unit id="login.username">
+      <segment>
+        <source>Username</source>
+        <target>Benutzername</target>
+      </segment>
+    </unit>
+    <unit id="login.password">
+      <segment>
+        <source>Password</source>
+        <target>Passwort</target>
+      </segment>
+    </unit>
+    <unit id="login.button">
+      <segment>
+        <source>Login</source>
+        <target>Anmelden</target>
+      </segment>
+    </unit>
+    <unit id="items.add">
+      <segment>
+        <source>+ Add Item</source>
+        <target>+ Artikel hinzufügen</target>
+      </segment>
+    </unit>
+    <unit id="items.search">
+      <segment>
+        <source>Search...</source>
+        <target>Suchen...</target>
+      </segment>
+    </unit>
+    <unit id="items.allCategories">
+      <segment>
+        <source>All Categories</source>
+        <target>Alle Kategorien</target>
+      </segment>
+    </unit>
+    <unit id="items.allLocations">
+      <segment>
+        <source>All Locations</source>
+        <target>Alle Orte</target>
+      </segment>
+    </unit>
+    <unit id="items.image">
+      <segment>
+        <source>Image</source>
+        <target>Bild</target>
+      </segment>
+    </unit>
+    <unit id="items.name">
+      <segment>
+        <source>Name</source>
+        <target>Name</target>
+      </segment>
+    </unit>
+    <unit id="items.category">
+      <segment>
+        <source>Category</source>
+        <target>Kategorie</target>
+      </segment>
+    </unit>
+    <unit id="items.location">
+      <segment>
+        <source>Location</source>
+        <target>Ort</target>
+      </segment>
+    </unit>
+    <unit id="items.quantity">
+      <segment>
+        <source>Quantity</source>
+        <target>Menge</target>
+      </segment>
+    </unit>
+    <unit id="items.price">
+      <segment>
+        <source>Price</source>
+        <target>Preis</target>
+      </segment>
+    </unit>
+    <unit id="items.actions">
+      <segment>
+        <source>Actions</source>
+        <target>Aktionen</target>
+      </segment>
+    </unit>
+    <unit id="items.noImage">
+      <segment>
+        <source>No Image</source>
+        <target>Kein Bild</target>
+      </segment>
+    </unit>
+    <unit id="items.edit">
+      <segment>
+        <source>Edit</source>
+        <target>Bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="items.delete">
+      <segment>
+        <source>Delete</source>
+        <target>Löschen</target>
+      </segment>
+    </unit>
+    <unit id="items.openLink">
+      <segment>
+        <source>Open Link</source>
+        <target>Link öffnen</target>
+      </segment>
+    </unit>
+    <unit id="items.viewDatasheet">
+      <segment>
+        <source>View Datasheet</source>
+        <target>Datenblatt anzeigen</target>
+      </segment>
+    </unit>
+    <unit id="items.noItems">
+      <segment>
+        <source>No items found. Click "Add Item" to create one.</source>
+        <target>Keine Artikel gefunden. Klicken Sie auf "Artikel hinzufügen", um einen zu erstellen.</target>
+      </segment>
+    </unit>
+    <unit id="items.confirmDelete">
+      <segment>
+        <source>Are you sure you want to delete this item?</source>
+        <target>Möchten Sie diesen Artikel wirklich löschen?</target>
+      </segment>
+    </unit>
+    <unit id="items.deleteError">
+      <segment>
+        <source>Failed to delete item</source>
+        <target>Fehler beim Löschen des Artikels</target>
+      </segment>
+    </unit>
+    <unit id="items.updateError">
+      <segment>
+        <source>Failed to update item</source>
+        <target>Fehler beim Aktualisieren des Artikels</target>
+      </segment>
+    </unit>
+    <unit id="items.createError">
+      <segment>
+        <source>Failed to create item</source>
+        <target>Fehler beim Erstellen des Artikels</target>
+      </segment>
+    </unit>
+    <unit id="form.addItem">
+      <segment>
+        <source>Add New Item</source>
+        <target>Neuer Artikel</target>
+      </segment>
+    </unit>
+    <unit id="form.editItem">
+      <segment>
+        <source>Edit Item</source>
+        <target>Artikel bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="form.name">
+      <segment>
+        <source>Name *</source>
+        <target>Name *</target>
+      </segment>
+    </unit>
+    <unit id="form.category">
+      <segment>
+        <source>Category</source>
+        <target>Kategorie</target>
+      </segment>
+    </unit>
+    <unit id="form.location">
+      <segment>
+        <source>Location</source>
+        <target>Ort</target>
+      </segment>
+    </unit>
+    <unit id="form.selectLocation">
+      <segment>
+        <source>- Select Location -</source>
+        <target>- Ort auswählen -</target>
+      </segment>
+    </unit>
+    <unit id="form.newLocation">
+      <segment>
+        <source>+ New Location</source>
+        <target>+ Neuer Ort</target>
+      </segment>
+    </unit>
+    <unit id="form.newLocationName">
+      <segment>
+        <source>New Location Name</source>
+        <target>Name des neuen Orts</target>
+      </segment>
+    </unit>
+    <unit id="form.quantity">
+      <segment>
+        <source>Quantity</source>
+        <target>Menge</target>
+      </segment>
+    </unit>
+    <unit id="form.unit">
+      <segment>
+        <source>Unit</source>
+        <target>Einheit</target>
+      </segment>
+    </unit>
+    <unit id="form.unitPlaceholder">
+      <segment>
+        <source>pcs, kg, m, etc.</source>
+        <target>Stk, kg, m, usw.</target>
+      </segment>
+    </unit>
+    <unit id="form.retailer">
+      <segment>
+        <source>Retailer</source>
+        <target>Händler</target>
+      </segment>
+    </unit>
+    <unit id="form.price">
+      <segment>
+        <source>Price (€)</source>
+        <target>Preis (€)</target>
+      </segment>
+    </unit>
+    <unit id="form.link">
+      <segment>
+        <source>Link (URL)</source>
+        <target>Link (URL)</target>
+      </segment>
+    </unit>
+    <unit id="form.datasheet">
+      <segment>
+        <source>Datasheet</source>
+        <target>Datenblatt</target>
+      </segment>
+    </unit>
+    <unit id="form.none">
+      <segment>
+        <source>None</source>
+        <target>Keins</target>
+      </segment>
+    </unit>
+    <unit id="form.url">
+      <segment>
+        <source>URL</source>
+        <target>URL</target>
+      </segment>
+    </unit>
+    <unit id="form.file">
+      <segment>
+        <source>File Upload</source>
+        <target>Datei hochladen</target>
+      </segment>
+    </unit>
+    <unit id="form.datasheetUrl">
+      <segment>
+        <source>Datasheet URL</source>
+        <target>Datenblatt-URL</target>
+      </segment>
+    </unit>
+    <unit id="form.datasheetFile">
+      <segment>
+        <source>Datasheet File</source>
+        <target>Datenblatt-Datei</target>
+      </segment>
+    </unit>
+    <unit id="form.clickToUpload">
+      <segment>
+        <source>Click to upload file (PDF, DOC, DOCX)</source>
+        <target>Klicken Sie hier, um eine Datei hochzuladen (PDF, DOC, DOCX)</target>
+      </segment>
+    </unit>
+    <unit id="form.image">
+      <segment>
+        <source>Image</source>
+        <target>Bild</target>
+      </segment>
+    </unit>
+    <unit id="form.clickToUploadImage">
+      <segment>
+        <source>Click to upload image (JPG, PNG, GIF, WebP)</source>
+        <target>Klicken Sie hier, um ein Bild hochzuladen (JPG, PNG, GIF, WebP)</target>
+      </segment>
+    </unit>
+    <unit id="form.notes">
+      <segment>
+        <source>Notes</source>
+        <target>Notizen</target>
+      </segment>
+    </unit>
+    <unit id="form.cancel">
+      <segment>
+        <source>Cancel</source>
+        <target>Abbrechen</target>
+      </segment>
+    </unit>
+    <unit id="form.save">
+      <segment>
+        <source>Save</source>
+        <target>Speichern</target>
+      </segment>
+    </unit>
+    <unit id="form.imageUploadError">
+      <segment>
+        <source>Failed to upload image</source>
+        <target>Fehler beim Hochladen des Bildes</target>
+      </segment>
+    </unit>
+    <unit id="form.datasheetUploadError">
+      <segment>
+        <source>Failed to upload datasheet</source>
+        <target>Fehler beim Hochladen des Datenblatts</target>
+      </segment>
+    </unit>
+    <unit id="form.nameRequired">
+      <segment>
+        <source>Name is required</source>
+        <target>Name ist erforderlich</target>
+      </segment>
+    </unit>
+    <unit id="form.locationCreateError">
+      <segment>
+        <source>Failed to create location</source>
+        <target>Fehler beim Erstellen des Orts</target>
+      </segment>
+    </unit>
+    <unit id="form.locationNameRequired">
+      <segment>
+        <source>Please enter a location name</source>
+        <target>Bitte geben Sie einen Ortsnamen ein</target>
+      </segment>
+    </unit>
+  </file>
+</xliff>
