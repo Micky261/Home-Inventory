@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Item, Location } from '../../models/item.model';
+import { Item, Location, Category, Tag } from '../../models/item.model';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -12,8 +12,8 @@ import { ApiService } from '../../services/api.service';
     <div class="modal-overlay" (click)="onCancel()">
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2 *ngIf="!item" i18n="@@form.addItem">Add New Item</h2>
-          <h2 *ngIf="item" i18n="@@form.editItem">Edit Item</h2>
+          <h2 *ngIf="!item" i18n="@@form.addItem">Neuen Artikel hinzufügen</h2>
+          <h2 *ngIf="item" i18n="@@form.editItem">Artikel bearbeiten</h2>
           <button class="icon-btn" (click)="onCancel()">✖</button>
         </div>
 
@@ -36,40 +36,48 @@ import { ApiService } from '../../services/api.service';
 
             <div class="form-row">
               <div class="form-group">
-                <label i18n="@@form.category">Category</label>
-                <input
-                  type="text"
-                  [(ngModel)]="formData.kategorie"
-                  name="kategorie"
-                  list="category-suggestions"
-                />
-                <datalist id="category-suggestions">
-                  <option *ngFor="let cat of categories" [value]="cat"></option>
-                </datalist>
+                <label i18n="@@form.category">Kategorie</label>
+                <select [(ngModel)]="formData.kategorie_id" name="kategorie_id">
+                  <option [value]="null" i18n="@@form.selectCategory">- Kategorie wählen -</option>
+                  <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+                </select>
               </div>
 
               <div class="form-group">
-                <label i18n="@@form.location">Location</label>
+                <label i18n="@@form.location">Ort</label>
                 <select [(ngModel)]="formData.ort_id" name="ort_id">
-                  <option [value]="null" i18n="@@form.selectLocation">- Select Location -</option>
-                  <option *ngFor="let loc of locations" [value]="loc.id">{{ loc.name }}</option>
-                  <option value="new" i18n="@@form.newLocation">+ New Location</option>
+                  <option [value]="null" i18n="@@form.selectLocation">- Ort wählen -</option>
+                  <option *ngFor="let loc of locations" [value]="loc.id">
+                    {{ loc.path || loc.name }}
+                  </option>
                 </select>
               </div>
             </div>
 
-            <div *ngIf="formData.ort_id === 'new'" class="form-group">
-              <label i18n="@@form.newLocationName">New Location Name</label>
-              <input
-                type="text"
-                [(ngModel)]="newLocationName"
-                name="newLocationName"
-              />
+            <div class="form-group">
+              <label i18n="@@form.tags">Tags</label>
+              <div class="tags-selector">
+                <div *ngFor="let tag of tags" class="tag-checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      [checked]="isTagSelected(tag.id)"
+                      (change)="toggleTag(tag.id)"
+                    />
+                    <span class="tag-badge" [style.background-color]="tag.color">
+                      {{ tag.name }}
+                    </span>
+                  </label>
+                </div>
+                <div *ngIf="tags.length === 0" class="no-tags" i18n="@@form.noTags">
+                  Keine Tags vorhanden. Erstellen Sie Tags in den Einstellungen.
+                </div>
+              </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label i18n="@@form.quantity">Quantity</label>
+                <label i18n="@@form.quantity">Menge</label>
                 <input
                   type="number"
                   step="0.01"
@@ -79,12 +87,12 @@ import { ApiService } from '../../services/api.service';
               </div>
 
               <div class="form-group">
-                <label i18n="@@form.unit">Unit</label>
+                <label i18n="@@form.unit">Einheit</label>
                 <input
                   type="text"
                   [(ngModel)]="formData.einheit"
                   name="einheit"
-                  placeholder="pcs, kg, m, etc."
+                  placeholder="Stk, kg, m, etc."
                   i18n-placeholder="@@form.unitPlaceholder"
                 />
               </div>
@@ -92,7 +100,7 @@ import { ApiService } from '../../services/api.service';
 
             <div class="form-row">
               <div class="form-group">
-                <label i18n="@@form.retailer">Retailer</label>
+                <label i18n="@@form.retailer">Händler</label>
                 <input
                   type="text"
                   [(ngModel)]="formData.haendler"
@@ -101,7 +109,7 @@ import { ApiService } from '../../services/api.service';
               </div>
 
               <div class="form-group">
-                <label i18n="@@form.price">Price (€)</label>
+                <label i18n="@@form.price">Preis (€)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -121,16 +129,16 @@ import { ApiService } from '../../services/api.service';
             </div>
 
             <div class="form-group">
-              <label i18n="@@form.datasheet">Datasheet</label>
+              <label i18n="@@form.datasheet">Datenblatt</label>
               <select [(ngModel)]="formData.datenblatt_type" name="datenblatt_type">
-                <option [value]="null" i18n="@@form.none">None</option>
+                <option [value]="null" i18n="@@form.none">Keins</option>
                 <option value="url" i18n="@@form.url">URL</option>
-                <option value="file" i18n="@@form.file">File Upload</option>
+                <option value="file" i18n="@@form.file">Datei hochladen</option>
               </select>
             </div>
 
             <div *ngIf="formData.datenblatt_type === 'url'" class="form-group">
-              <label i18n="@@form.datasheetUrl">Datasheet URL</label>
+              <label i18n="@@form.datasheetUrl">Datenblatt-URL</label>
               <input
                 type="url"
                 [(ngModel)]="formData.datenblatt_value"
@@ -139,9 +147,9 @@ import { ApiService } from '../../services/api.service';
             </div>
 
             <div *ngIf="formData.datenblatt_type === 'file'" class="form-group">
-              <label i18n="@@form.datasheetFile">Datasheet File</label>
+              <label i18n="@@form.datasheetFile">Datenblatt-Datei</label>
               <div class="file-upload" (click)="datasheetInput.click()">
-                <span i18n="@@form.clickToUpload">Click to upload file (PDF, DOC, DOCX)</span>
+                <span i18n="@@form.clickToUpload">Klicken zum Hochladen (PDF, DOC, DOCX)</span>
                 <input
                   #datasheetInput
                   type="file"
@@ -155,9 +163,9 @@ import { ApiService } from '../../services/api.service';
             </div>
 
             <div class="form-group">
-              <label i18n="@@form.image">Image</label>
+              <label i18n="@@form.image">Bild</label>
               <div class="file-upload" (click)="imageInput.click()">
-                <span i18n="@@form.clickToUploadImage">Click to upload image (JPG, PNG, GIF, WebP)</span>
+                <span i18n="@@form.clickToUploadImage">Klicken zum Hochladen (JPG, PNG, GIF, WebP)</span>
                 <input
                   #imageInput
                   type="file"
@@ -165,13 +173,13 @@ import { ApiService } from '../../services/api.service';
                   (change)="onImageUpload($event)"
                 />
                 <div *ngIf="formData.bild" class="file-preview">
-                  <img [src]="getImageUrl(formData.bild)" alt="Preview" />
+                  <img [src]="getImageUrl(formData.bild)" alt="Vorschau" />
                 </div>
               </div>
             </div>
 
             <div class="form-group">
-              <label i18n="@@form.notes">Notes</label>
+              <label i18n="@@form.notes">Notizen</label>
               <textarea
                 [(ngModel)]="formData.notizen"
                 name="notizen"
@@ -183,15 +191,53 @@ import { ApiService } from '../../services/api.service';
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="onCancel()" i18n="@@form.cancel">
-            Cancel
+            Abbrechen
           </button>
           <button type="button" class="btn btn-success" (click)="onSubmit()" i18n="@@form.save">
-            Save
+            Speichern
           </button>
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .tags-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-height: 50px;
+    }
+
+    .tag-checkbox label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .tag-checkbox input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .tag-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .no-tags {
+      color: #95a5a6;
+      font-style: italic;
+      padding: 10px;
+    }
+  `]
 })
 export class ItemFormComponent implements OnInit {
   @Input() item: Item | null = null;
@@ -201,7 +247,7 @@ export class ItemFormComponent implements OnInit {
 
   formData: any = {
     name: '',
-    kategorie: '',
+    kategorie_id: null,
     ort_id: null,
     menge: null,
     einheit: '',
@@ -211,23 +257,32 @@ export class ItemFormComponent implements OnInit {
     datenblatt_type: null,
     datenblatt_value: '',
     bild: '',
-    notizen: ''
+    notizen: '',
+    tag_ids: []
   };
 
   nameSuggestions: string[] = [];
-  categories: string[] = [];
-  newLocationName = '';
+  categories: Category[] = [];
+  tags: Tag[] = [];
 
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
     if (this.item) {
-      this.formData = { ...this.item };
+      this.formData = {
+        ...this.item,
+        tag_ids: this.item.tags?.map(t => t.id) || []
+      };
     }
 
     this.apiService.getCategories().subscribe({
       next: (categories) => this.categories = categories,
       error: (err) => console.error('Error loading categories:', err)
+    });
+
+    this.apiService.getTags().subscribe({
+      next: (tags) => this.tags = tags,
+      error: (err) => console.error('Error loading tags:', err)
     });
   }
 
@@ -238,6 +293,19 @@ export class ItemFormComponent implements OnInit {
         next: (suggestions) => this.nameSuggestions = suggestions,
         error: (err) => console.error('Error loading suggestions:', err)
       });
+    }
+  }
+
+  isTagSelected(tagId: number): boolean {
+    return this.formData.tag_ids.includes(tagId);
+  }
+
+  toggleTag(tagId: number) {
+    const index = this.formData.tag_ids.indexOf(tagId);
+    if (index > -1) {
+      this.formData.tag_ids.splice(index, 1);
+    } else {
+      this.formData.tag_ids.push(tagId);
     }
   }
 
@@ -271,24 +339,9 @@ export class ItemFormComponent implements OnInit {
     }
   }
 
-  async onSubmit() {
+  onSubmit() {
     if (!this.formData.name) {
       alert('Name is required');
-      return;
-    }
-
-    // Handle new location
-    if (this.formData.ort_id === 'new' && this.newLocationName) {
-      try {
-        const location = await this.apiService.createLocation(this.newLocationName).toPromise();
-        this.formData.ort_id = location!.id;
-      } catch (err) {
-        console.error('Error creating location:', err);
-        alert('Failed to create location');
-        return;
-      }
-    } else if (this.formData.ort_id === 'new') {
-      alert('Please enter a location name');
       return;
     }
 

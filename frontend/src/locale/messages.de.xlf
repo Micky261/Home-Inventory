@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="de">
   <file id="ngi18n" original="ng.template">
+    <!-- App -->
     <unit id="app.title">
       <segment>
         <source>Home Inventory System</source>
@@ -19,6 +20,8 @@
         <target>Lädt...</target>
       </segment>
     </unit>
+
+    <!-- Login -->
     <unit id="login.title">
       <segment>
         <source>Login</source>
@@ -43,10 +46,18 @@
         <target>Anmelden</target>
       </segment>
     </unit>
+
+    <!-- Items List -->
     <unit id="items.add">
       <segment>
         <source>+ Add Item</source>
         <target>+ Artikel hinzufügen</target>
+      </segment>
+    </unit>
+    <unit id="items.settings">
+      <segment>
+        <source>Settings</source>
+        <target>Einstellungen</target>
       </segment>
     </unit>
     <unit id="items.search">
@@ -65,6 +76,12 @@
       <segment>
         <source>All Locations</source>
         <target>Alle Orte</target>
+      </segment>
+    </unit>
+    <unit id="items.allTags">
+      <segment>
+        <source>All Tags</source>
+        <target>Alle Tags</target>
       </segment>
     </unit>
     <unit id="items.image">
@@ -89,6 +106,12 @@
       <segment>
         <source>Location</source>
         <target>Ort</target>
+      </segment>
+    </unit>
+    <unit id="items.tags">
+      <segment>
+        <source>Tags</source>
+        <target>Tags</target>
       </segment>
     </unit>
     <unit id="items.quantity">
@@ -142,37 +165,15 @@
     <unit id="items.noItems">
       <segment>
         <source>No items found. Click "Add Item" to create one.</source>
-        <target>Keine Artikel gefunden. Klicken Sie auf "Artikel hinzufügen", um einen zu erstellen.</target>
+        <target>Keine Artikel gefunden. Klicken Sie auf "Artikel hinzufügen" um einen zu erstellen.</target>
       </segment>
     </unit>
-    <unit id="items.confirmDelete">
-      <segment>
-        <source>Are you sure you want to delete this item?</source>
-        <target>Möchten Sie diesen Artikel wirklich löschen?</target>
-      </segment>
-    </unit>
-    <unit id="items.deleteError">
-      <segment>
-        <source>Failed to delete item</source>
-        <target>Fehler beim Löschen des Artikels</target>
-      </segment>
-    </unit>
-    <unit id="items.updateError">
-      <segment>
-        <source>Failed to update item</source>
-        <target>Fehler beim Aktualisieren des Artikels</target>
-      </segment>
-    </unit>
-    <unit id="items.createError">
-      <segment>
-        <source>Failed to create item</source>
-        <target>Fehler beim Erstellen des Artikels</target>
-      </segment>
-    </unit>
+
+    <!-- Item Form -->
     <unit id="form.addItem">
       <segment>
         <source>Add New Item</source>
-        <target>Neuer Artikel</target>
+        <target>Neuen Artikel hinzufügen</target>
       </segment>
     </unit>
     <unit id="form.editItem">
@@ -193,6 +194,12 @@
         <target>Kategorie</target>
       </segment>
     </unit>
+    <unit id="form.selectCategory">
+      <segment>
+        <source>- Select Category -</source>
+        <target>- Kategorie wählen -</target>
+      </segment>
+    </unit>
     <unit id="form.location">
       <segment>
         <source>Location</source>
@@ -202,19 +209,19 @@
     <unit id="form.selectLocation">
       <segment>
         <source>- Select Location -</source>
-        <target>- Ort auswählen -</target>
+        <target>- Ort wählen -</target>
       </segment>
     </unit>
-    <unit id="form.newLocation">
+    <unit id="form.tags">
       <segment>
-        <source>+ New Location</source>
-        <target>+ Neuer Ort</target>
+        <source>Tags</source>
+        <target>Tags</target>
       </segment>
     </unit>
-    <unit id="form.newLocationName">
+    <unit id="form.noTags">
       <segment>
-        <source>New Location Name</source>
-        <target>Name des neuen Orts</target>
+        <source>No tags available. Create tags in settings.</source>
+        <target>Keine Tags vorhanden. Erstellen Sie Tags in den Einstellungen.</target>
       </segment>
     </unit>
     <unit id="form.quantity">
@@ -292,7 +299,7 @@
     <unit id="form.clickToUpload">
       <segment>
         <source>Click to upload file (PDF, DOC, DOCX)</source>
-        <target>Klicken Sie hier, um eine Datei hochzuladen (PDF, DOC, DOCX)</target>
+        <target>Klicken zum Hochladen (PDF, DOC, DOCX)</target>
       </segment>
     </unit>
     <unit id="form.image">
@@ -304,7 +311,7 @@
     <unit id="form.clickToUploadImage">
       <segment>
         <source>Click to upload image (JPG, PNG, GIF, WebP)</source>
-        <target>Klicken Sie hier, um ein Bild hochzuladen (JPG, PNG, GIF, WebP)</target>
+        <target>Klicken zum Hochladen (JPG, PNG, GIF, WebP)</target>
       </segment>
     </unit>
     <unit id="form.notes">
@@ -325,34 +332,108 @@
         <target>Speichern</target>
       </segment>
     </unit>
-    <unit id="form.imageUploadError">
+
+    <!-- Settings -->
+    <unit id="settings.title">
       <segment>
-        <source>Failed to upload image</source>
-        <target>Fehler beim Hochladen des Bildes</target>
+        <source>Settings</source>
+        <target>Einstellungen</target>
       </segment>
     </unit>
-    <unit id="form.datasheetUploadError">
+    <unit id="settings.back">
       <segment>
-        <source>Failed to upload datasheet</source>
-        <target>Fehler beim Hochladen des Datenblatts</target>
+        <source>← Back to Overview</source>
+        <target>← Zurück zur Übersicht</target>
       </segment>
     </unit>
-    <unit id="form.nameRequired">
+    <unit id="settings.categories">
       <segment>
-        <source>Name is required</source>
-        <target>Name ist erforderlich</target>
+        <source>Categories</source>
+        <target>Kategorien</target>
       </segment>
     </unit>
-    <unit id="form.locationCreateError">
+    <unit id="settings.locations">
       <segment>
-        <source>Failed to create location</source>
-        <target>Fehler beim Erstellen des Orts</target>
+        <source>Locations</source>
+        <target>Orte</target>
       </segment>
     </unit>
-    <unit id="form.locationNameRequired">
+    <unit id="settings.tags">
       <segment>
-        <source>Please enter a location name</source>
-        <target>Bitte geben Sie einen Ortsnamen ein</target>
+        <source>Tags</source>
+        <target>Tags</target>
+      </segment>
+    </unit>
+    <unit id="settings.newCategory">
+      <segment>
+        <source>New Category</source>
+        <target>Neue Kategorie</target>
+      </segment>
+    </unit>
+    <unit id="settings.newLocation">
+      <segment>
+        <source>New Location</source>
+        <target>Neuer Ort</target>
+      </segment>
+    </unit>
+    <unit id="settings.newTag">
+      <segment>
+        <source>New Tag</source>
+        <target>Neuer Tag</target>
+      </segment>
+    </unit>
+    <unit id="settings.add">
+      <segment>
+        <source>Add</source>
+        <target>Hinzufügen</target>
+      </segment>
+    </unit>
+    <unit id="settings.edit">
+      <segment>
+        <source>Edit</source>
+        <target>Bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="settings.save">
+      <segment>
+        <source>Save</source>
+        <target>Speichern</target>
+      </segment>
+    </unit>
+    <unit id="settings.delete">
+      <segment>
+        <source>Delete</source>
+        <target>Löschen</target>
+      </segment>
+    </unit>
+    <unit id="settings.color">
+      <segment>
+        <source>Color</source>
+        <target>Farbe</target>
+      </segment>
+    </unit>
+    <unit id="settings.topLevel">
+      <segment>
+        <source>- Top Level -</source>
+        <target>- Oberste Ebene -</target>
+      </segment>
+    </unit>
+    <unit id="settings.noCategories">
+      <segment>
+        <source>No categories available</source>
+        <target>Keine Kategorien vorhanden</target>
+      </segment>
+    </unit>
+    <unit id="settings.noLocations">
+      <segment>
+        <source>No locations available</source>
+        <target>Keine Orte vorhanden</target>
+      </segment>
+    </unit>
+    <unit id="settings.noTags">
+      <segment>
+        <source>No tags available</source>
+        <target>Keine Tags vorhanden</target>
       </segment>
     </unit>
   </file>

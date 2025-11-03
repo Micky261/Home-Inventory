@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { Item, Location } from '../../models/item.model';
+import { Item, Location, Category, Tag } from '../../models/item.model';
 import { ItemFormComponent } from '../item-form/item-form.component';
 
 @Component({
@@ -13,13 +13,16 @@ import { ItemFormComponent } from '../item-form/item-form.component';
   template: `
     <div class="header">
       <div class="container">
-        <h1 i18n="@@app.title">Home Inventory System</h1>
+        <h1 i18n="@@app.title">Heiminventar-System</h1>
         <div class="header-actions">
           <button class="btn btn-success" (click)="openAddModal()" i18n="@@items.add">
-            + Add Item
+            + Artikel hinzufügen
+          </button>
+          <button class="btn btn-primary" (click)="goToSettings()" i18n="@@items.settings">
+            ⚙️ Einstellungen
           </button>
           <button class="btn btn-secondary" (click)="logout()" i18n="@@app.logout">
-            Logout
+            Abmelden
           </button>
         </div>
       </div>
@@ -31,34 +34,39 @@ import { ItemFormComponent } from '../item-form/item-form.component';
           type="text"
           [(ngModel)]="searchQuery"
           (input)="search()"
-          placeholder="Search..."
+          placeholder="Suchen..."
           i18n-placeholder="@@items.search"
         />
         <select [(ngModel)]="filterKategorie" (change)="search()">
-          <option value="" i18n="@@items.allCategories">All Categories</option>
-          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          <option value="" i18n="@@items.allCategories">Alle Kategorien</option>
+          <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
         </select>
         <select [(ngModel)]="filterOrt" (change)="search()">
-          <option value="" i18n="@@items.allLocations">All Locations</option>
-          <option *ngFor="let loc of locations" [value]="loc.id">{{ loc.name }}</option>
+          <option value="" i18n="@@items.allLocations">Alle Orte</option>
+          <option *ngFor="let loc of locations" [value]="loc.id">{{ loc.path || loc.name }}</option>
+        </select>
+        <select [(ngModel)]="filterTag" (change)="search()">
+          <option value="" i18n="@@items.allTags">Alle Tags</option>
+          <option *ngFor="let tag of tags" [value]="tag.id">{{ tag.name }}</option>
         </select>
       </div>
 
       <div *ngIf="loading" class="loading" i18n="@@app.loading">
-        Loading...
+        Lädt...
       </div>
 
       <div *ngIf="!loading" class="table-container">
         <table>
           <thead>
             <tr>
-              <th i18n="@@items.image">Image</th>
+              <th i18n="@@items.image">Bild</th>
               <th i18n="@@items.name">Name</th>
-              <th i18n="@@items.category">Category</th>
-              <th i18n="@@items.location">Location</th>
-              <th i18n="@@items.quantity">Quantity</th>
-              <th i18n="@@items.price">Price</th>
-              <th i18n="@@items.actions">Actions</th>
+              <th i18n="@@items.category">Kategorie</th>
+              <th i18n="@@items.location">Ort</th>
+              <th i18n="@@items.tags">Tags</th>
+              <th i18n="@@items.quantity">Menge</th>
+              <th i18n="@@items.price">Preis</th>
+              <th i18n="@@items.actions">Aktionen</th>
             </tr>
           </thead>
           <tbody>
@@ -70,19 +78,31 @@ import { ItemFormComponent } from '../item-form/item-form.component';
                   class="thumbnail"
                   [alt]="item.name"
                 />
-                <div *ngIf="!item.bild" class="no-image" i18n="@@items.noImage">No Image</div>
+                <div *ngIf="!item.bild" class="no-image" i18n="@@items.noImage">Kein Bild</div>
               </td>
               <td>{{ item.name }}</td>
-              <td>{{ item.kategorie || '-' }}</td>
-              <td>{{ item.ort_name || '-' }}</td>
+              <td>{{ item.kategorie_name || '-' }}</td>
+              <td>{{ item.ort_path || item.ort_name || '-' }}</td>
+              <td>
+                <div class="tags-cell">
+                  <span
+                    *ngFor="let tag of item.tags"
+                    class="tag-badge"
+                    [style.background-color]="tag.color"
+                  >
+                    {{ tag.name }}
+                  </span>
+                  <span *ngIf="!item.tags || item.tags.length === 0" class="no-tags">-</span>
+                </div>
+              </td>
               <td>{{ item.menge ? (item.menge + ' ' + (item.einheit || '')) : '-' }}</td>
               <td>{{ item.preis ? (item.preis + ' €') : '-' }}</td>
               <td>
                 <div class="action-buttons">
-                  <button class="icon-btn" (click)="editItem(item)" title="Edit" i18n-title="@@items.edit">
+                  <button class="icon-btn" (click)="editItem(item)" title="Bearbeiten" i18n-title="@@items.edit">
                     ✏️
                   </button>
-                  <button class="icon-btn" (click)="deleteItem(item)" title="Delete" i18n-title="@@items.delete">
+                  <button class="icon-btn" (click)="deleteItem(item)" title="Löschen" i18n-title="@@items.delete">
                     🗑️
                   </button>
                   <a
@@ -90,7 +110,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
                     [href]="item.link"
                     target="_blank"
                     class="icon-btn"
-                    title="Open Link"
+                    title="Link öffnen"
                     i18n-title="@@items.openLink"
                   >
                     🔗
@@ -100,7 +120,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
                     [href]="getDatasheetUrl(item.datenblatt_value)"
                     target="_blank"
                     class="icon-btn"
-                    title="View Datasheet"
+                    title="Datenblatt anzeigen"
                     i18n-title="@@items.viewDatasheet"
                   >
                     📄
@@ -110,7 +130,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
                     [href]="item.datenblatt_value"
                     target="_blank"
                     class="icon-btn"
-                    title="View Datasheet"
+                    title="Datenblatt anzeigen"
                     i18n-title="@@items.viewDatasheet"
                   >
                     📄
@@ -119,8 +139,8 @@ import { ItemFormComponent } from '../item-form/item-form.component';
               </td>
             </tr>
             <tr *ngIf="items.length === 0">
-              <td colspan="7" style="text-align: center; padding: 40px;" i18n="@@items.noItems">
-                No items found. Click "Add Item" to create one.
+              <td colspan="8" style="text-align: center; padding: 40px;" i18n="@@items.noItems">
+                Keine Artikel gefunden. Klicken Sie auf "Artikel hinzufügen" um einen zu erstellen.
               </td>
             </tr>
           </tbody>
@@ -135,15 +155,38 @@ import { ItemFormComponent } from '../item-form/item-form.component';
       (save)="onSaveItem($event)"
       (cancel)="closeModal()"
     ></app-item-form>
-  `
+  `,
+  styles: [`
+    .tags-cell {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .tag-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 10px;
+      color: white;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .no-tags {
+      color: #95a5a6;
+      font-style: italic;
+    }
+  `]
 })
 export class ItemListComponent implements OnInit {
   items: Item[] = [];
   locations: Location[] = [];
-  categories: string[] = [];
+  categories: Category[] = [];
+  tags: Tag[] = [];
   searchQuery = '';
   filterKategorie = '';
   filterOrt = '';
+  filterTag = '';
   loading = false;
   showModal = false;
   selectedItem: Item | null = null;
@@ -182,6 +225,11 @@ export class ItemListComponent implements OnInit {
       next: (categories) => this.categories = categories,
       error: (err) => console.error('Error loading categories:', err)
     });
+
+    this.apiService.getTags().subscribe({
+      next: (tags) => this.tags = tags,
+      error: (err) => console.error('Error loading tags:', err)
+    });
   }
 
   search() {
@@ -189,7 +237,8 @@ export class ItemListComponent implements OnInit {
     this.apiService.getItems(
       this.searchQuery || undefined,
       this.filterKategorie || undefined,
-      this.filterOrt || undefined
+      this.filterOrt || undefined,
+      this.filterTag || undefined
     ).subscribe({
       next: (items) => {
         this.items = items;
@@ -213,14 +262,14 @@ export class ItemListComponent implements OnInit {
   }
 
   deleteItem(item: Item) {
-    if (confirm('Are you sure you want to delete this item?')) {
+    if (confirm('Möchten Sie diesen Artikel wirklich löschen?')) {
       this.apiService.deleteItem(item.id!).subscribe({
         next: () => {
           this.loadData();
         },
         error: (err) => {
           console.error('Error deleting item:', err);
-          alert('Failed to delete item');
+          alert('Fehler beim Löschen des Artikels');
         }
       });
     }
@@ -235,7 +284,7 @@ export class ItemListComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error updating item:', err);
-          alert('Failed to update item');
+          alert('Fehler beim Aktualisieren des Artikels');
         }
       });
     } else {
@@ -246,7 +295,7 @@ export class ItemListComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error creating item:', err);
-          alert('Failed to create item');
+          alert('Fehler beim Erstellen des Artikels');
         }
       });
     }
@@ -263,6 +312,10 @@ export class ItemListComponent implements OnInit {
 
   getDatasheetUrl(filename: string): string {
     return this.apiService.getDatasheetUrl(filename);
+  }
+
+  goToSettings() {
+    this.router.navigate(['/settings']);
   }
 
   logout() {
