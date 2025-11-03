@@ -213,14 +213,14 @@ export class ItemListComponent implements OnInit {
   }
 
   deleteItem(item: Item) {
-    if (confirm($localize`:@@items.confirmDelete:Are you sure you want to delete this item?`)) {
+    if (confirm('Are you sure you want to delete this item?')) {
       this.apiService.deleteItem(item.id!).subscribe({
         next: () => {
           this.loadData();
         },
         error: (err) => {
           console.error('Error deleting item:', err);
-          alert($localize`:@@items.deleteError:Failed to delete item`);
+          alert('Failed to delete item');
         }
       });
     }
@@ -235,7 +235,7 @@ export class ItemListComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error updating item:', err);
-          alert($localize`:@@items.updateError:Failed to update item`);
+          alert('Failed to update item');
         }
       });
     } else {
@@ -246,7 +246,7 @@ export class ItemListComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error creating item:', err);
-          alert($localize`:@@items.createError:Failed to create item`);
+          alert('Failed to create item');
         }
       });
     }

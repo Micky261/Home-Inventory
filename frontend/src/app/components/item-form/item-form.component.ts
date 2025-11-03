@@ -250,7 +250,7 @@ export class ItemFormComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error uploading image:', err);
-          alert($localize`:@@form.imageUploadError:Failed to upload image`);
+          alert('Failed to upload image');
         }
       });
     }
@@ -265,7 +265,7 @@ export class ItemFormComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error uploading datasheet:', err);
-          alert($localize`:@@form.datasheetUploadError:Failed to upload datasheet`);
+          alert('Failed to upload datasheet');
         }
       });
     }
@@ -273,7 +273,7 @@ export class ItemFormComponent implements OnInit {
 
   async onSubmit() {
     if (!this.formData.name) {
-      alert($localize`:@@form.nameRequired:Name is required`);
+      alert('Name is required');
       return;
     }
 
@@ -284,11 +284,11 @@ export class ItemFormComponent implements OnInit {
         this.formData.ort_id = location!.id;
       } catch (err) {
         console.error('Error creating location:', err);
-        alert($localize`:@@form.locationCreateError:Failed to create location`);
+        alert('Failed to create location');
         return;
       }
     } else if (this.formData.ort_id === 'new') {
-      alert($localize`:@@form.locationNameRequired:Please enter a location name`);
+      alert('Please enter a location name');
       return;
     }
 
