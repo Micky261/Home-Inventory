@@ -2,30 +2,23 @@
 
 namespace App\Controllers;
 
-use App\Models\Location;
+use App\Models\Tag;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class LocationController
+class TagController
 {
-    private $locationModel;
+    private $tagModel;
 
     public function __construct($db)
     {
-        $this->locationModel = new Location($db);
+        $this->tagModel = new Tag($db);
     }
 
     public function index(Request $request, Response $response)
     {
-        $locations = $this->locationModel->getAll();
-        $response->getBody()->write(json_encode($locations));
-        return $response->withHeader('Content-Type', 'application/json');
-    }
-
-    public function tree(Request $request, Response $response)
-    {
-        $tree = $this->locationModel->getTree();
-        $response->getBody()->write(json_encode($tree));
+        $tags = $this->tagModel->getAll();
+        $response->getBody()->write(json_encode($tags));
         return $response->withHeader('Content-Type', 'application/json');
     }
 
@@ -38,16 +31,16 @@ class LocationController
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
 
-        $parentId = $data['parent_id'] ?? null;
-        $id = $this->locationModel->create($data['name'], $parentId);
+        $color = $data['color'] ?? '#3498db';
+        $id = $this->tagModel->create($data['name'], $color);
 
         if ($id) {
-            $location = $this->locationModel->getById($id);
-            $response->getBody()->write(json_encode($location));
+            $tag = $this->tagModel->getById($id);
+            $response->getBody()->write(json_encode($tag));
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
         }
 
-        $response->getBody()->write(json_encode(['error' => 'Failed to create location']));
+        $response->getBody()->write(json_encode(['error' => 'Failed to create tag']));
         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
     }
 
@@ -60,34 +53,29 @@ class LocationController
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
 
-        $parentId = $data['parent_id'] ?? null;
-        $result = $this->locationModel->update($args['id'], $data['name'], $parentId);
+        $color = $data['color'] ?? '#3498db';
+        $result = $this->tagModel->update($args['id'], $data['name'], $color);
 
         if ($result) {
-            $location = $this->locationModel->getById($args['id']);
-            $response->getBody()->write(json_encode($location));
+            $tag = $this->tagModel->getById($args['id']);
+            $response->getBody()->write(json_encode($tag));
             return $response->withHeader('Content-Type', 'application/json');
         }
 
-        $response->getBody()->write(json_encode(['error' => 'Failed to update location']));
+        $response->getBody()->write(json_encode(['error' => 'Failed to update tag']));
         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
     }
 
     public function delete(Request $request, Response $response, $args)
     {
-        $result = $this->locationModel->delete($args['id']);
-
-        if ($result === false) {
-            $response->getBody()->write(json_encode(['error' => 'Cannot delete location in use']));
-            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-        }
+        $result = $this->tagModel->delete($args['id']);
 
         if ($result) {
-            $response->getBody()->write(json_encode(['message' => 'Location deleted']));
+            $response->getBody()->write(json_encode(['message' => 'Tag deleted']));
             return $response->withHeader('Content-Type', 'application/json');
         }
 
-        $response->getBody()->write(json_encode(['error' => 'Location not found']));
+        $response->getBody()->write(json_encode(['error' => 'Tag not found']));
         return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
     }
 }

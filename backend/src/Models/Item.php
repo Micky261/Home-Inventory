@@ -7,27 +7,35 @@ use PDO;
 class Item
 {
     private $db;
+    private $tagModel;
 
     public function __construct($db)
     {
         $this->db = $db;
+        $this->tagModel = new Tag($db);
     }
 
-    public function getAll($search = null, $kategorie = null, $ort = null)
+    public function getAll($search = null, $kategorie = null, $ort = null, $tag = null)
     {
-        $sql = 'SELECT i.*, l.name as ort_name
+        $sql = 'SELECT DISTINCT i.*, l.name as ort_name, l.path as ort_path, c.name as kategorie_name
                 FROM items i
                 LEFT JOIN locations l ON i.ort_id = l.id
-                WHERE 1=1';
+                LEFT JOIN categories c ON i.kategorie_id = c.id';
+
+        if ($tag) {
+            $sql .= ' INNER JOIN item_tags it ON i.id = it.item_id';
+        }
+
+        $sql .= ' WHERE 1=1';
         $params = [];
 
         if ($search) {
-            $sql .= ' AND (i.name LIKE :search OR i.kategorie LIKE :search OR l.name LIKE :search)';
+            $sql .= ' AND (i.name LIKE :search OR c.name LIKE :search OR l.name LIKE :search OR l.path LIKE :search)';
             $params[':search'] = '%' . $search . '%';
         }
 
         if ($kategorie) {
-            $sql .= ' AND i.kategorie = :kategorie';
+            $sql .= ' AND i.kategorie_id = :kategorie';
             $params[':kategorie'] = $kategorie;
         }
 
@@ -36,37 +44,56 @@ class Item
             $params[':ort'] = $ort;
         }
 
+        if ($tag) {
+            $sql .= ' AND it.tag_id = :tag';
+            $params[':tag'] = $tag;
+        }
+
         $sql .= ' ORDER BY i.created_at DESC';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        $items = $stmt->fetchAll();
+
+        // Add tags to each item
+        foreach ($items as &$item) {
+            $item['tags'] = $this->tagModel->getItemTags($item['id']);
+        }
+
+        return $items;
     }
 
     public function getById($id)
     {
         $stmt = $this->db->prepare('
-            SELECT i.*, l.name as ort_name
+            SELECT i.*, l.name as ort_name, l.path as ort_path, c.name as kategorie_name
             FROM items i
             LEFT JOIN locations l ON i.ort_id = l.id
+            LEFT JOIN categories c ON i.kategorie_id = c.id
             WHERE i.id = :id
         ');
         $stmt->execute([':id' => $id]);
-        return $stmt->fetch();
+        $item = $stmt->fetch();
+
+        if ($item) {
+            $item['tags'] = $this->tagModel->getItemTags($item['id']);
+        }
+
+        return $item;
     }
 
     public function create($data)
     {
         $stmt = $this->db->prepare('
-            INSERT INTO items (name, kategorie, ort_id, menge, einheit, haendler, preis, link,
+            INSERT INTO items (name, kategorie_id, ort_id, menge, einheit, haendler, preis, link,
                                datenblatt_type, datenblatt_value, bild, notizen)
-            VALUES (:name, :kategorie, :ort_id, :menge, :einheit, :haendler, :preis, :link,
+            VALUES (:name, :kategorie_id, :ort_id, :menge, :einheit, :haendler, :preis, :link,
                     :datenblatt_type, :datenblatt_value, :bild, :notizen)
         ');
 
         $result = $stmt->execute([
             ':name' => $data['name'] ?? null,
-            ':kategorie' => $data['kategorie'] ?? null,
+            ':kategorie_id' => $data['kategorie_id'] ?? null,
             ':ort_id' => $data['ort_id'] ?? null,
             ':menge' => $data['menge'] ?? null,
             ':einheit' => $data['einheit'] ?? null,
@@ -79,24 +106,35 @@ class Item
             ':notizen' => $data['notizen'] ?? null
         ]);
 
-        return $result ? $this->db->lastInsertId() : false;
+        if ($result) {
+            $itemId = $this->db->lastInsertId();
+
+            // Save tags if provided
+            if (isset($data['tag_ids']) && is_array($data['tag_ids'])) {
+                $this->tagModel->setItemTags($itemId, $data['tag_ids']);
+            }
+
+            return $itemId;
+        }
+
+        return false;
     }
 
     public function update($id, $data)
     {
         $stmt = $this->db->prepare('
             UPDATE items
-            SET name = :name, kategorie = :kategorie, ort_id = :ort_id, menge = :menge,
+            SET name = :name, kategorie_id = :kategorie_id, ort_id = :ort_id, menge = :menge,
                 einheit = :einheit, haendler = :haendler, preis = :preis, link = :link,
                 datenblatt_type = :datenblatt_type, datenblatt_value = :datenblatt_value,
                 bild = :bild, notizen = :notizen, updated_at = CURRENT_TIMESTAMP
             WHERE id = :id
         ');
 
-        return $stmt->execute([
+        $result = $stmt->execute([
             ':id' => $id,
             ':name' => $data['name'] ?? null,
-            ':kategorie' => $data['kategorie'] ?? null,
+            ':kategorie_id' => $data['kategorie_id'] ?? null,
             ':ort_id' => $data['ort_id'] ?? null,
             ':menge' => $data['menge'] ?? null,
             ':einheit' => $data['einheit'] ?? null,
@@ -108,6 +146,15 @@ class Item
             ':bild' => $data['bild'] ?? null,
             ':notizen' => $data['notizen'] ?? null
         ]);
+
+        if ($result) {
+            // Update tags if provided
+            if (isset($data['tag_ids']) && is_array($data['tag_ids'])) {
+                $this->tagModel->setItemTags($id, $data['tag_ids']);
+            }
+        }
+
+        return $result;
     }
 
     public function delete($id)
@@ -126,17 +173,6 @@ class Item
             LIMIT 10
         ');
         $stmt->execute([':query' => $query . '%']);
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
-    }
-
-    public function getCategories()
-    {
-        $stmt = $this->db->query('
-            SELECT DISTINCT kategorie
-            FROM items
-            WHERE kategorie IS NOT NULL
-            ORDER BY kategorie
-        ');
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 }

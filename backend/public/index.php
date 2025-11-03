@@ -7,6 +7,8 @@ use App\Models\Database;
 use App\Controllers\AuthController;
 use App\Controllers\ItemController;
 use App\Controllers\LocationController;
+use App\Controllers\CategoryController;
+use App\Controllers\TagController;
 use App\Controllers\UploadController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\CorsMiddleware;
@@ -36,13 +38,15 @@ $db = $database->getConnection();
 $authController = new AuthController($config);
 $itemController = new ItemController($db, $config);
 $locationController = new LocationController($db);
+$categoryController = new CategoryController($db);
+$tagController = new TagController($db);
 $uploadController = new UploadController($config);
 
 // Auth routes (no auth required)
 $app->post('/api/auth/login', [$authController, 'login']);
 
 // Protected routes
-$app->group('/api', function ($group) use ($itemController, $locationController, $uploadController) {
+$app->group('/api', function ($group) use ($itemController, $locationController, $categoryController, $tagController, $uploadController) {
     // Items
     $group->get('/items', [$itemController, 'index']);
     $group->get('/items/{id}', [$itemController, 'show']);
@@ -50,12 +54,25 @@ $app->group('/api', function ($group) use ($itemController, $locationController,
     $group->put('/items/{id}', [$itemController, 'update']);
     $group->delete('/items/{id}', [$itemController, 'delete']);
     $group->get('/items/autocomplete/names', [$itemController, 'autocomplete']);
-    $group->get('/categories', [$itemController, 'categories']);
 
     // Locations
     $group->get('/locations', [$locationController, 'index']);
+    $group->get('/locations/tree', [$locationController, 'tree']);
     $group->post('/locations', [$locationController, 'create']);
+    $group->put('/locations/{id}', [$locationController, 'update']);
     $group->delete('/locations/{id}', [$locationController, 'delete']);
+
+    // Categories
+    $group->get('/categories', [$categoryController, 'index']);
+    $group->post('/categories', [$categoryController, 'create']);
+    $group->put('/categories/{id}', [$categoryController, 'update']);
+    $group->delete('/categories/{id}', [$categoryController, 'delete']);
+
+    // Tags
+    $group->get('/tags', [$tagController, 'index']);
+    $group->post('/tags', [$tagController, 'create']);
+    $group->put('/tags/{id}', [$tagController, 'update']);
+    $group->delete('/tags/{id}', [$tagController, 'delete']);
 
     // Uploads
     $group->post('/upload/image', [$uploadController, 'uploadImage']);

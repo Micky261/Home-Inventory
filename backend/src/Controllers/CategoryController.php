@@ -2,30 +2,23 @@
 
 namespace App\Controllers;
 
-use App\Models\Location;
+use App\Models\Category;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class LocationController
+class CategoryController
 {
-    private $locationModel;
+    private $categoryModel;
 
     public function __construct($db)
     {
-        $this->locationModel = new Location($db);
+        $this->categoryModel = new Category($db);
     }
 
     public function index(Request $request, Response $response)
     {
-        $locations = $this->locationModel->getAll();
-        $response->getBody()->write(json_encode($locations));
-        return $response->withHeader('Content-Type', 'application/json');
-    }
-
-    public function tree(Request $request, Response $response)
-    {
-        $tree = $this->locationModel->getTree();
-        $response->getBody()->write(json_encode($tree));
+        $categories = $this->categoryModel->getAll();
+        $response->getBody()->write(json_encode($categories));
         return $response->withHeader('Content-Type', 'application/json');
     }
 
@@ -38,16 +31,15 @@ class LocationController
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
 
-        $parentId = $data['parent_id'] ?? null;
-        $id = $this->locationModel->create($data['name'], $parentId);
+        $id = $this->categoryModel->create($data['name']);
 
         if ($id) {
-            $location = $this->locationModel->getById($id);
-            $response->getBody()->write(json_encode($location));
+            $category = $this->categoryModel->getById($id);
+            $response->getBody()->write(json_encode($category));
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
         }
 
-        $response->getBody()->write(json_encode(['error' => 'Failed to create location']));
+        $response->getBody()->write(json_encode(['error' => 'Failed to create category']));
         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
     }
 
@@ -60,34 +52,33 @@ class LocationController
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
 
-        $parentId = $data['parent_id'] ?? null;
-        $result = $this->locationModel->update($args['id'], $data['name'], $parentId);
+        $result = $this->categoryModel->update($args['id'], $data['name']);
 
         if ($result) {
-            $location = $this->locationModel->getById($args['id']);
-            $response->getBody()->write(json_encode($location));
+            $category = $this->categoryModel->getById($args['id']);
+            $response->getBody()->write(json_encode($category));
             return $response->withHeader('Content-Type', 'application/json');
         }
 
-        $response->getBody()->write(json_encode(['error' => 'Failed to update location']));
+        $response->getBody()->write(json_encode(['error' => 'Failed to update category']));
         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
     }
 
     public function delete(Request $request, Response $response, $args)
     {
-        $result = $this->locationModel->delete($args['id']);
+        $result = $this->categoryModel->delete($args['id']);
 
         if ($result === false) {
-            $response->getBody()->write(json_encode(['error' => 'Cannot delete location in use']));
+            $response->getBody()->write(json_encode(['error' => 'Cannot delete category in use']));
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
 
         if ($result) {
-            $response->getBody()->write(json_encode(['message' => 'Location deleted']));
+            $response->getBody()->write(json_encode(['message' => 'Category deleted']));
             return $response->withHeader('Content-Type', 'application/json');
         }
 
-        $response->getBody()->write(json_encode(['error' => 'Location not found']));
+        $response->getBody()->write(json_encode(['error' => 'Category not found']));
         return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
     }
 }

@@ -23,8 +23,9 @@ class ItemController
         $search = $params['search'] ?? null;
         $kategorie = $params['kategorie'] ?? null;
         $ort = $params['ort'] ?? null;
+        $tag = $params['tag'] ?? null;
 
-        $items = $this->itemModel->getAll($search, $kategorie, $ort);
+        $items = $this->itemModel->getAll($search, $kategorie, $ort, $tag);
         $response->getBody()->write(json_encode($items));
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -134,10 +135,4 @@ class ItemController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function categories(Request $request, Response $response)
-    {
-        $categories = $this->itemModel->getCategories();
-        $response->getBody()->write(json_encode($categories));
-        return $response->withHeader('Content-Type', 'application/json');
-    }
 }
