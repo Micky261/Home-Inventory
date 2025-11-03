@@ -31,7 +31,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
           type="text"
           [(ngModel)]="searchQuery"
           (input)="search()"
-          [placeholder]="'items.search' | i18nPlaceholder"
+          placeholder="Search..."
           i18n-placeholder="@@items.search"
         />
         <select [(ngModel)]="filterKategorie" (change)="search()">
