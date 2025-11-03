@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Item, Location, Category, Tag } from '../../models/item.model';
 import { ItemFormComponent } from '../item-form/item-form.component';
+import { ItemDetailComponent } from '../item-detail/item-detail.component';
 
 @Component({
   selector: 'app-item-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ItemFormComponent],
+  imports: [CommonModule, FormsModule, ItemFormComponent, ItemDetailComponent],
   template: `
     <div class="header">
       <div class="container">
@@ -170,7 +171,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of items">
+            <tr *ngFor="let item of items" class="clickable-row" (click)="viewItemDetails(item)">
               <td>
                 <img
                   *ngIf="item.bild"
@@ -195,7 +196,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
                   <span *ngIf="!item.tags || item.tags.length === 0" class="no-tags">-</span>
                 </div>
               </td>
-              <td>
+              <td (click)="$event.stopPropagation()">
                 <div class="action-buttons">
                   <button class="icon-btn" (click)="editItem(item)" title="Bearbeiten" i18n-title="@@items.edit">
                     ✏️
@@ -247,7 +248,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
 
       <!-- Card View -->
       <div *ngIf="!loading && viewMode === 'cards'" class="cards-container">
-        <div *ngFor="let item of items" class="item-card">
+        <div *ngFor="let item of items" class="item-card" (click)="viewItemDetails(item)">
           <div class="card-image">
             <img
               *ngIf="item.bild"
@@ -285,7 +286,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
                 </span>
               </div>
             </div>
-            <div class="card-actions">
+            <div class="card-actions" (click)="$event.stopPropagation()">
               <button class="icon-btn" (click)="editItem(item)" title="Bearbeiten" i18n-title="@@items.edit">
                 ✏️
               </button>
@@ -338,8 +339,24 @@ import { ItemFormComponent } from '../item-form/item-form.component';
       (save)="onSaveItem($event)"
       (cancel)="closeModal()"
     ></app-item-form>
+
+    <app-item-detail
+      *ngIf="showDetail && detailItem"
+      [item]="detailItem"
+      (close)="closeDetail()"
+      (edit)="editFromDetail($event)"
+    ></app-item-detail>
   `,
   styles: [`
+    .clickable-row {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .clickable-row:hover {
+      background-color: #f8f9fa;
+    }
+
     .tags-cell {
       display: flex;
       flex-wrap: wrap;
@@ -541,6 +558,7 @@ import { ItemFormComponent } from '../item-form/item-form.component';
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       overflow: hidden;
       transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
 
     .item-card:hover {
@@ -638,6 +656,8 @@ export class ItemListComponent implements OnInit {
   selectedItem: Item | null = null;
   viewMode: 'list' | 'cards' = 'list';
   showFilters = false;
+  showDetail = false;
+  detailItem: Item | null = null;
 
   constructor(
     private apiService: ApiService,
@@ -781,6 +801,21 @@ export class ItemListComponent implements OnInit {
   closeModal() {
     this.showModal = false;
     this.selectedItem = null;
+  }
+
+  viewItemDetails(item: Item) {
+    this.detailItem = item;
+    this.showDetail = true;
+  }
+
+  closeDetail() {
+    this.showDetail = false;
+    this.detailItem = null;
+  }
+
+  editFromDetail(item: Item) {
+    this.closeDetail();
+    this.editItem(item);
   }
 
   getImageUrl(filename: string): string {

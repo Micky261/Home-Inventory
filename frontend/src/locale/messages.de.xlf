@@ -518,5 +518,37 @@
         <target>Filter zurücksetzen</target>
       </segment>
     </unit>
+
+    <!-- Item Detail View -->
+    <unit id="items.retailer">
+      <segment>
+        <source>Retailer</source>
+        <target>Händler</target>
+      </segment>
+    </unit>
+    <unit id="items.notes">
+      <segment>
+        <source>Notes</source>
+        <target>Notizen</target>
+      </segment>
+    </unit>
+    <unit id="items.createdAt">
+      <segment>
+        <source>Created at</source>
+        <target>Erstellt am</target>
+      </segment>
+    </unit>
+    <unit id="items.updatedAt">
+      <segment>
+        <source>Updated at</source>
+        <target>Aktualisiert am</target>
+      </segment>
+    </unit>
+    <unit id="items.close">
+      <segment>
+        <source>Close</source>
+        <target>Schließen</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
