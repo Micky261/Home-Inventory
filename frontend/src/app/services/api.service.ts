@@ -7,8 +7,9 @@ import { Item, Location } from '../models/item.model';
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'http://localhost/HomeInventoryClaude/backend/public/api';
-  private uploadUrl = 'http://localhost/HomeInventoryClaude/backend/public';
+  // Use PHP development server on port 9000
+  private apiUrl = 'http://localhost:9000/api';
+  private uploadUrl = 'http://localhost:9000';
 
   constructor(private http: HttpClient) {}
 
