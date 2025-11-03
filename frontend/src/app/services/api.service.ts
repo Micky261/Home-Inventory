@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Item, Location } from '../models/item.model';
+import { Item, Location, Category, Tag } from '../models/item.model';
 
 @Injectable({
   providedIn: 'root'
@@ -26,11 +26,12 @@ export class ApiService {
   }
 
   // Items
-  getItems(search?: string, kategorie?: string, ort?: string): Observable<Item[]> {
+  getItems(search?: string, kategorie?: string, ort?: string, tag?: string): Observable<Item[]> {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
     if (kategorie) params = params.set('kategorie', kategorie);
     if (ort) params = params.set('ort', ort);
+    if (tag) params = params.set('tag', tag);
 
     return this.http.get<Item[]>(`${this.apiUrl}/items`, {
       headers: this.getHeaders(),
@@ -69,8 +70,27 @@ export class ApiService {
     });
   }
 
-  getCategories(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/categories`, {
+  // Categories
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.apiUrl}/categories`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  createCategory(name: string): Observable<Category> {
+    return this.http.post<Category>(`${this.apiUrl}/categories`, { name }, {
+      headers: this.getHeaders()
+    });
+  }
+
+  updateCategory(id: number, name: string): Observable<Category> {
+    return this.http.put<Category>(`${this.apiUrl}/categories/${id}`, { name }, {
+      headers: this.getHeaders()
+    });
+  }
+
+  deleteCategory(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/categories/${id}`, {
       headers: this.getHeaders()
     });
   }
@@ -82,14 +102,51 @@ export class ApiService {
     });
   }
 
-  createLocation(name: string): Observable<Location> {
-    return this.http.post<Location>(`${this.apiUrl}/locations`, { name }, {
+  getLocationsTree(): Observable<Location[]> {
+    return this.http.get<Location[]>(`${this.apiUrl}/locations/tree`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  createLocation(name: string, parent_id?: number): Observable<Location> {
+    return this.http.post<Location>(`${this.apiUrl}/locations`, { name, parent_id }, {
+      headers: this.getHeaders()
+    });
+  }
+
+  updateLocation(id: number, name: string, parent_id?: number): Observable<Location> {
+    return this.http.put<Location>(`${this.apiUrl}/locations/${id}`, { name, parent_id }, {
       headers: this.getHeaders()
     });
   }
 
   deleteLocation(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/locations/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Tags
+  getTags(): Observable<Tag[]> {
+    return this.http.get<Tag[]>(`${this.apiUrl}/tags`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  createTag(name: string, color: string): Observable<Tag> {
+    return this.http.post<Tag>(`${this.apiUrl}/tags`, { name, color }, {
+      headers: this.getHeaders()
+    });
+  }
+
+  updateTag(id: number, name: string, color: string): Observable<Tag> {
+    return this.http.put<Tag>(`${this.apiUrl}/tags/${id}`, { name, color }, {
+      headers: this.getHeaders()
+    });
+  }
+
+  deleteTag(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/tags/${id}`, {
       headers: this.getHeaders()
     });
   }
