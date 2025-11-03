@@ -26,12 +26,37 @@ export class ApiService {
   }
 
   // Items
-  getItems(search?: string, kategorie?: string, ort?: string, tag?: string): Observable<Item[]> {
+  getItems(
+    search?: string,
+    kategorien?: number[],
+    orte?: number[],
+    tags?: number[],
+    tagMode?: 'union' | 'intersect'
+  ): Observable<Item[]> {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
-    if (kategorie) params = params.set('kategorie', kategorie);
-    if (ort) params = params.set('ort', ort);
-    if (tag) params = params.set('tag', tag);
+
+    if (kategorien && kategorien.length > 0) {
+      kategorien.forEach(k => {
+        params = params.append('kategorien[]', k.toString());
+      });
+    }
+
+    if (orte && orte.length > 0) {
+      orte.forEach(o => {
+        params = params.append('orte[]', o.toString());
+      });
+    }
+
+    if (tags && tags.length > 0) {
+      tags.forEach(t => {
+        params = params.append('tags[]', t.toString());
+      });
+    }
+
+    if (tagMode) {
+      params = params.set('tagMode', tagMode);
+    }
 
     return this.http.get<Item[]>(`${this.apiUrl}/items`, {
       headers: this.getHeaders(),

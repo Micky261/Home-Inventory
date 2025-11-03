@@ -21,11 +21,26 @@ class ItemController
     {
         $params = $request->getQueryParams();
         $search = $params['search'] ?? null;
-        $kategorie = $params['kategorie'] ?? null;
-        $ort = $params['ort'] ?? null;
-        $tag = $params['tag'] ?? null;
 
-        $items = $this->itemModel->getAll($search, $kategorie, $ort, $tag);
+        // Support both single value and array for filters
+        $kategorien = isset($params['kategorien']) ? (is_array($params['kategorien']) ? $params['kategorien'] : [$params['kategorien']]) : null;
+        $orte = isset($params['orte']) ? (is_array($params['orte']) ? $params['orte'] : [$params['orte']]) : null;
+        $tags = isset($params['tags']) ? (is_array($params['tags']) ? $params['tags'] : [$params['tags']]) : null;
+
+        // Backward compatibility with old single-value parameters
+        if (!$kategorien && isset($params['kategorie'])) {
+            $kategorien = [$params['kategorie']];
+        }
+        if (!$orte && isset($params['ort'])) {
+            $orte = [$params['ort']];
+        }
+        if (!$tags && isset($params['tag'])) {
+            $tags = [$params['tag']];
+        }
+
+        $tagMode = $params['tagMode'] ?? 'union';
+
+        $items = $this->itemModel->getAll($search, $kategorien, $orte, $tags, $tagMode);
         $response->getBody()->write(json_encode($items));
         return $response->withHeader('Content-Type', 'application/json');
     }

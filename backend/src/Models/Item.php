@@ -15,14 +15,25 @@ class Item
         $this->tagModel = new Tag($db);
     }
 
-    public function getAll($search = null, $kategorie = null, $ort = null, $tag = null)
+    public function getAll($search = null, $kategorien = null, $orte = null, $tags = null, $tagMode = 'union')
     {
+        // Convert single values to arrays for consistent processing
+        if ($kategorien && !is_array($kategorien)) {
+            $kategorien = [$kategorien];
+        }
+        if ($orte && !is_array($orte)) {
+            $orte = [$orte];
+        }
+        if ($tags && !is_array($tags)) {
+            $tags = [$tags];
+        }
+
         $sql = 'SELECT DISTINCT i.*, l.name as ort_name, l.path as ort_path, c.name as kategorie_name
                 FROM items i
                 LEFT JOIN locations l ON i.ort_id = l.id
                 LEFT JOIN categories c ON i.kategorie_id = c.id';
 
-        if ($tag) {
+        if ($tags && count($tags) > 0) {
             $sql .= ' INNER JOIN item_tags it ON i.id = it.item_id';
         }
 
@@ -34,19 +45,50 @@ class Item
             $params[':search'] = '%' . $search . '%';
         }
 
-        if ($kategorie) {
-            $sql .= ' AND i.kategorie_id = :kategorie';
-            $params[':kategorie'] = $kategorie;
+        // Category filter - Union (OR)
+        if ($kategorien && count($kategorien) > 0) {
+            $placeholders = [];
+            foreach ($kategorien as $index => $kat) {
+                $placeholder = ':kategorie' . $index;
+                $placeholders[] = $placeholder;
+                $params[$placeholder] = $kat;
+            }
+            $sql .= ' AND i.kategorie_id IN (' . implode(',', $placeholders) . ')';
         }
 
-        if ($ort) {
-            $sql .= ' AND i.ort_id = :ort';
-            $params[':ort'] = $ort;
+        // Location filter - Union (OR)
+        if ($orte && count($orte) > 0) {
+            $placeholders = [];
+            foreach ($orte as $index => $ort) {
+                $placeholder = ':ort' . $index;
+                $placeholders[] = $placeholder;
+                $params[$placeholder] = $ort;
+            }
+            $sql .= ' AND i.ort_id IN (' . implode(',', $placeholders) . ')';
         }
 
-        if ($tag) {
-            $sql .= ' AND it.tag_id = :tag';
-            $params[':tag'] = $tag;
+        // Tag filter - Union (OR) or Intersect (AND)
+        if ($tags && count($tags) > 0) {
+            if ($tagMode === 'intersect') {
+                // Intersect: item must have ALL selected tags
+                $placeholders = [];
+                foreach ($tags as $index => $tag) {
+                    $placeholder = ':tag' . $index;
+                    $placeholders[] = $placeholder;
+                    $params[$placeholder] = $tag;
+                }
+                $sql .= ' AND it.tag_id IN (' . implode(',', $placeholders) . ')';
+                $sql .= ' GROUP BY i.id HAVING COUNT(DISTINCT it.tag_id) = ' . count($tags);
+            } else {
+                // Union: item must have AT LEAST ONE selected tag
+                $placeholders = [];
+                foreach ($tags as $index => $tag) {
+                    $placeholder = ':tag' . $index;
+                    $placeholders[] = $placeholder;
+                    $params[$placeholder] = $tag;
+                }
+                $sql .= ' AND it.tag_id IN (' . implode(',', $placeholders) . ')';
+            }
         }
 
         $sql .= ' ORDER BY i.created_at DESC';

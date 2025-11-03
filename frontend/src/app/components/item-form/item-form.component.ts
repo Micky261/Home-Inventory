@@ -73,6 +73,25 @@ import { ApiService } from '../../services/api.service';
                   Keine Tags vorhanden. Erstellen Sie Tags in den Einstellungen.
                 </div>
               </div>
+              <div class="tag-create-form">
+                <input
+                  type="text"
+                  [(ngModel)]="newTagName"
+                  name="newTagName"
+                  placeholder="Neuer Tag"
+                  i18n-placeholder="@@form.newTag"
+                />
+                <input
+                  type="color"
+                  [(ngModel)]="newTagColor"
+                  name="newTagColor"
+                  title="Farbe"
+                  i18n-title="@@settings.color"
+                />
+                <button type="button" class="btn btn-sm btn-success" (click)="createNewTag()" i18n="@@form.addTag">
+                  + Tag
+                </button>
+              </div>
             </div>
 
             <div class="form-row">
@@ -237,6 +256,31 @@ import { ApiService } from '../../services/api.service';
       font-style: italic;
       padding: 10px;
     }
+
+    .tag-create-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px;
+      border-top: 1px solid #ddd;
+    }
+
+    .tag-create-form input[type="text"] {
+      flex: 1;
+    }
+
+    .tag-create-form input[type="color"] {
+      width: 50px;
+      height: 38px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
   `]
 })
 export class ItemFormComponent implements OnInit {
@@ -264,6 +308,8 @@ export class ItemFormComponent implements OnInit {
   nameSuggestions: string[] = [];
   categories: Category[] = [];
   tags: Tag[] = [];
+  newTagName = '';
+  newTagColor = '#3498db';
 
   constructor(private apiService: ApiService) {}
 
@@ -307,6 +353,25 @@ export class ItemFormComponent implements OnInit {
     } else {
       this.formData.tag_ids.push(tagId);
     }
+  }
+
+  createNewTag() {
+    if (!this.newTagName.trim()) {
+      return;
+    }
+
+    this.apiService.createTag(this.newTagName.trim(), this.newTagColor).subscribe({
+      next: (newTag) => {
+        this.tags.push(newTag);
+        this.formData.tag_ids.push(newTag.id);
+        this.newTagName = '';
+        this.newTagColor = '#3498db';
+      },
+      error: (err) => {
+        console.error('Error creating tag:', err);
+        alert('Failed to create tag');
+      }
+    });
   }
 
   onImageUpload(event: any) {

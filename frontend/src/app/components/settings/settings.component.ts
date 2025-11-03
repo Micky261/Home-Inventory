@@ -265,10 +265,12 @@ import { Category, Location, Tag } from '../../models/item.model';
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
+      align-items: center;
     }
 
     .add-form input[type="text"] {
       flex: 1;
+      height: 38px;
     }
 
     .add-form input[type="color"] {
@@ -281,6 +283,14 @@ import { Category, Location, Tag } from '../../models/item.model';
 
     .add-form select {
       min-width: 150px;
+      height: 38px;
+    }
+
+    .add-form .btn {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
     }
 
     .items-list {

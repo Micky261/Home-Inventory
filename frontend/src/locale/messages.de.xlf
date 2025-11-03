@@ -436,5 +436,87 @@
         <target>Keine Tags vorhanden</target>
       </segment>
     </unit>
+
+    <!-- Item Form - New Tag Creation -->
+    <unit id="form.newTag">
+      <segment>
+        <source>New Tag</source>
+        <target>Neuer Tag</target>
+      </segment>
+    </unit>
+    <unit id="form.addTag">
+      <segment>
+        <source>+ Tag</source>
+        <target>+ Tag</target>
+      </segment>
+    </unit>
+
+    <!-- Item List - Views and Filters -->
+    <unit id="items.listView">
+      <segment>
+        <source>List View</source>
+        <target>Listenansicht</target>
+      </segment>
+    </unit>
+    <unit id="items.cardView">
+      <segment>
+        <source>Card View</source>
+        <target>Kachelansicht</target>
+      </segment>
+    </unit>
+    <unit id="items.filters">
+      <segment>
+        <source>Filters</source>
+        <target>Filter</target>
+      </segment>
+    </unit>
+    <unit id="items.categories">
+      <segment>
+        <source>Categories</source>
+        <target>Kategorien</target>
+      </segment>
+    </unit>
+    <unit id="items.locations">
+      <segment>
+        <source>Locations</source>
+        <target>Orte</target>
+      </segment>
+    </unit>
+    <unit id="items.noCategories">
+      <segment>
+        <source>No categories available</source>
+        <target>Keine Kategorien vorhanden</target>
+      </segment>
+    </unit>
+    <unit id="items.noLocations">
+      <segment>
+        <source>No locations available</source>
+        <target>Keine Orte vorhanden</target>
+      </segment>
+    </unit>
+    <unit id="items.noTags">
+      <segment>
+        <source>No tags available</source>
+        <target>Keine Tags vorhanden</target>
+      </segment>
+    </unit>
+    <unit id="items.tagModeUnion">
+      <segment>
+        <source>At least one tag (OR)</source>
+        <target>Mindestens ein Tag (ODER)</target>
+      </segment>
+    </unit>
+    <unit id="items.tagModeIntersect">
+      <segment>
+        <source>All tags (AND)</source>
+        <target>Alle Tags (UND)</target>
+      </segment>
+    </unit>
+    <unit id="items.clearFilters">
+      <segment>
+        <source>Clear Filters</source>
+        <target>Filter zurücksetzen</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
