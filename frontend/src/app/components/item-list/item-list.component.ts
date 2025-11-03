@@ -71,7 +71,29 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
 
         <div *ngIf="showFilters" class="filters-panel">
           <div class="filter-section">
-            <h4 i18n="@@items.categories">Kategorien</h4>
+            <div class="filter-header">
+              <h4 i18n="@@items.categories">Kategorien</h4>
+              <div class="filter-mode-toggle">
+                <button
+                  class="mode-btn"
+                  [class.active]="categoryMode === 'union'"
+                  (click)="categoryMode = 'union'; search()"
+                  title="Mindestens eine Kategorie (ODER)"
+                  i18n-title="@@items.categoryModeUnion"
+                >
+                  ODER
+                </button>
+                <button
+                  class="mode-btn"
+                  [class.active]="categoryMode === 'intersect'"
+                  (click)="categoryMode = 'intersect'; search()"
+                  title="Alle Kategorien (UND)"
+                  i18n-title="@@items.categoryModeIntersect"
+                >
+                  UND
+                </button>
+              </div>
+            </div>
             <div class="filter-options">
               <label *ngFor="let cat of categories" class="filter-checkbox">
                 <input
@@ -88,7 +110,29 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
           </div>
 
           <div class="filter-section">
-            <h4 i18n="@@items.locations">Orte</h4>
+            <div class="filter-header">
+              <h4 i18n="@@items.locations">Orte</h4>
+              <div class="filter-mode-toggle">
+                <button
+                  class="mode-btn"
+                  [class.active]="locationMode === 'union'"
+                  (click)="locationMode = 'union'; search()"
+                  title="Mindestens ein Ort (ODER)"
+                  i18n-title="@@items.locationModeUnion"
+                >
+                  ODER
+                </button>
+                <button
+                  class="mode-btn"
+                  [class.active]="locationMode === 'intersect'"
+                  (click)="locationMode = 'intersect'; search()"
+                  title="Alle Orte (UND)"
+                  i18n-title="@@items.locationModeIntersect"
+                >
+                  UND
+                </button>
+              </div>
+            </div>
             <div class="filter-options">
               <label *ngFor="let loc of locations" class="filter-checkbox">
                 <input
@@ -650,6 +694,8 @@ export class ItemListComponent implements OnInit {
   filterKategorien: number[] = [];
   filterOrte: number[] = [];
   filterTags: number[] = [];
+  categoryMode: 'union' | 'intersect' = 'union';
+  locationMode: 'union' | 'intersect' = 'union';
   tagMode: 'union' | 'intersect' = 'union';
   loading = false;
   showModal = false;
@@ -707,6 +753,8 @@ export class ItemListComponent implements OnInit {
       this.filterKategorien.length > 0 ? this.filterKategorien : undefined,
       this.filterOrte.length > 0 ? this.filterOrte : undefined,
       this.filterTags.length > 0 ? this.filterTags : undefined,
+      this.categoryMode,
+      this.locationMode,
       this.tagMode
     ).subscribe({
       next: (items) => {
@@ -744,6 +792,8 @@ export class ItemListComponent implements OnInit {
     this.filterKategorien = [];
     this.filterOrte = [];
     this.filterTags = [];
+    this.categoryMode = 'union';
+    this.locationMode = 'union';
     this.tagMode = 'union';
     this.search();
   }

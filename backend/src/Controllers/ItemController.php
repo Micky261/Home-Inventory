@@ -38,9 +38,11 @@ class ItemController
             $tags = [$params['tag']];
         }
 
+        $categoryMode = $params['categoryMode'] ?? 'union';
+        $locationMode = $params['locationMode'] ?? 'union';
         $tagMode = $params['tagMode'] ?? 'union';
 
-        $items = $this->itemModel->getAll($search, $kategorien, $orte, $tags, $tagMode);
+        $items = $this->itemModel->getAll($search, $kategorien, $orte, $tags, $categoryMode, $locationMode, $tagMode);
         $response->getBody()->write(json_encode($items));
         return $response->withHeader('Content-Type', 'application/json');
     }

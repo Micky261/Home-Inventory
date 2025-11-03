@@ -15,7 +15,7 @@ class Item
         $this->tagModel = new Tag($db);
     }
 
-    public function getAll($search = null, $kategorien = null, $orte = null, $tags = null, $tagMode = 'union')
+    public function getAll($search = null, $kategorien = null, $orte = null, $tags = null, $categoryMode = 'union', $locationMode = 'union', $tagMode = 'union')
     {
         // Convert single values to arrays for consistent processing
         if ($kategorien && !is_array($kategorien)) {
@@ -45,26 +45,52 @@ class Item
             $params[':search'] = '%' . $search . '%';
         }
 
-        // Category filter - Union (OR)
+        // Category filter - Union (OR) or Intersect (AND)
         if ($kategorien && count($kategorien) > 0) {
-            $placeholders = [];
-            foreach ($kategorien as $index => $kat) {
-                $placeholder = ':kategorie' . $index;
-                $placeholders[] = $placeholder;
-                $params[$placeholder] = $kat;
+            if ($categoryMode === 'intersect') {
+                // Intersect: Not really applicable for single kategorie_id field
+                // We'll treat it as union since an item can only have one category
+                $placeholders = [];
+                foreach ($kategorien as $index => $kat) {
+                    $placeholder = ':kategorie' . $index;
+                    $placeholders[] = $placeholder;
+                    $params[$placeholder] = $kat;
+                }
+                $sql .= ' AND i.kategorie_id IN (' . implode(',', $placeholders) . ')';
+            } else {
+                // Union: item has at least one of the selected categories
+                $placeholders = [];
+                foreach ($kategorien as $index => $kat) {
+                    $placeholder = ':kategorie' . $index;
+                    $placeholders[] = $placeholder;
+                    $params[$placeholder] = $kat;
+                }
+                $sql .= ' AND i.kategorie_id IN (' . implode(',', $placeholders) . ')';
             }
-            $sql .= ' AND i.kategorie_id IN (' . implode(',', $placeholders) . ')';
         }
 
-        // Location filter - Union (OR)
+        // Location filter - Union (OR) or Intersect (AND)
         if ($orte && count($orte) > 0) {
-            $placeholders = [];
-            foreach ($orte as $index => $ort) {
-                $placeholder = ':ort' . $index;
-                $placeholders[] = $placeholder;
-                $params[$placeholder] = $ort;
+            if ($locationMode === 'intersect') {
+                // Intersect: Not really applicable for single ort_id field
+                // We'll treat it as union since an item can only have one location
+                $placeholders = [];
+                foreach ($orte as $index => $ort) {
+                    $placeholder = ':ort' . $index;
+                    $placeholders[] = $placeholder;
+                    $params[$placeholder] = $ort;
+                }
+                $sql .= ' AND i.ort_id IN (' . implode(',', $placeholders) . ')';
+            } else {
+                // Union: item has at least one of the selected locations
+                $placeholders = [];
+                foreach ($orte as $index => $ort) {
+                    $placeholder = ':ort' . $index;
+                    $placeholders[] = $placeholder;
+                    $params[$placeholder] = $ort;
+                }
+                $sql .= ' AND i.ort_id IN (' . implode(',', $placeholders) . ')';
             }
-            $sql .= ' AND i.ort_id IN (' . implode(',', $placeholders) . ')';
         }
 
         // Tag filter - Union (OR) or Intersect (AND)

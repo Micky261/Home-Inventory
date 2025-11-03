@@ -266,10 +266,12 @@ import { Category, Location, Tag } from '../../models/item.model';
       gap: 10px;
       margin-bottom: 20px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .add-form input[type="text"] {
       flex: 1;
+      min-width: 120px;
       height: 38px;
     }
 
@@ -279,11 +281,14 @@ import { Category, Location, Tag } from '../../models/item.model';
       border: 1px solid #ddd;
       border-radius: 4px;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     .add-form select {
       min-width: 150px;
+      max-width: 200px;
       height: 38px;
+      flex-shrink: 0;
     }
 
     .add-form .btn {
@@ -291,6 +296,8 @@ import { Category, Location, Tag } from '../../models/item.model';
       display: flex;
       align-items: center;
       white-space: nowrap;
+      flex-shrink: 0;
+      padding: 8px 16px;
     }
 
     .items-list {

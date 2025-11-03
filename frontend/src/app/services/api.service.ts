@@ -31,6 +31,8 @@ export class ApiService {
     kategorien?: number[],
     orte?: number[],
     tags?: number[],
+    categoryMode?: 'union' | 'intersect',
+    locationMode?: 'union' | 'intersect',
     tagMode?: 'union' | 'intersect'
   ): Observable<Item[]> {
     let params = new HttpParams();
@@ -52,6 +54,14 @@ export class ApiService {
       tags.forEach(t => {
         params = params.append('tags[]', t.toString());
       });
+    }
+
+    if (categoryMode) {
+      params = params.set('categoryMode', categoryMode);
+    }
+
+    if (locationMode) {
+      params = params.set('locationMode', locationMode);
     }
 
     if (tagMode) {

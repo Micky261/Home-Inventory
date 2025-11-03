@@ -240,6 +240,11 @@ import { ApiService } from '../../services/api.service';
     .links-section .btn {
       flex: 1;
       min-width: 150px;
+      text-decoration: none;
+    }
+
+    .links-section .btn:hover {
+      text-decoration: none;
     }
 
     .metadata {
