@@ -3,6 +3,15 @@ backend/vendor/
 frontend/node_modules/
 frontend/.angular/
 
+# Yarn Berry (v2+)
+frontend/.yarn/*
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/sdks
+!frontend/.yarn/versions
+frontend/.pnp.*
+
 # Database
 database/*.db
 database/*.db-journal

@@ -1,6 +1,7 @@
 {
   "name": "home-inventory-frontend",
   "version": "1.0.0",
+  "packageManager": "yarn@4.0.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

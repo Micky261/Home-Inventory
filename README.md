@@ -47,7 +47,7 @@ Each inventory item includes:
 
 - PHP 7.4 or higher with PDO SQLite extension
 - Composer
-- Node.js 18+ and npm
+- Node.js 18+ and Yarn (Berry/v4)
 - Apache/Nginx web server (or use XAMPP)
 
 ### Backend Setup
@@ -109,13 +109,22 @@ Each inventory item includes:
 
 ### Frontend Setup
 
-1. **Install dependencies**:
+This project uses **Yarn Berry (v4)** via Corepack. See `frontend/SETUP.md` for detailed Yarn setup.
+
+1. **Enable Corepack** (one-time, may require sudo):
    ```bash
-   cd frontend
-   npm install
+   corepack enable
    ```
 
-2. **Update API URL** (if needed):
+2. **Install dependencies**:
+   ```bash
+   cd frontend
+   yarn install
+   ```
+
+   Corepack will automatically use Yarn 4.0.2 as specified in package.json
+
+3. **Update API URL** (if needed):
    - Edit `frontend/src/app/services/api.service.ts`
    - Update `apiUrl` and `uploadUrl` to match your backend URL:
      ```typescript
@@ -123,15 +132,15 @@ Each inventory item includes:
      private uploadUrl = 'http://localhost/HomeInventoryClaude/backend/public';
      ```
 
-3. **Start development server**:
+4. **Start development server**:
    ```bash
-   npm start
+   yarn start
    ```
    The application will open at `http://localhost:4200`
 
-4. **Build for production** (optional):
+5. **Build for production** (optional):
    ```bash
-   npm run build
+   yarn build
    ```
    Output will be in `frontend/dist/home-inventory/`
 
@@ -170,19 +179,19 @@ The application supports German and English. To build with specific language:
 
 ```bash
 # German version (default)
-ng build --configuration production --localize
+yarn ng build --configuration production --localize
 
 # English version only
-ng build --configuration production --locale en
+yarn ng build --configuration production --locale en
 
 # German version only
-ng build --configuration production --locale de
+yarn ng build --configuration production --locale de
 ```
 
 For development, the app uses English by default. To extract new translations:
 
 ```bash
-ng extract-i18n --output-path src/locale
+yarn ng extract-i18n --output-path src/locale
 ```
 
 ## Database
@@ -245,9 +254,14 @@ For production use, consider:
    - Check browser console for CORS errors
 
 2. **Build errors**:
-   - Delete `node_modules` and `package-lock.json`
-   - Run `npm install` again
+   - Delete `node_modules` and `.yarn/cache` directories
+   - Run `yarn install` again
    - Clear Angular cache: `rm -rf .angular`
+
+3. **Yarn Berry issues**:
+   - Ensure Corepack is enabled: `corepack enable`
+   - Check Yarn version: `yarn --version` (should be 4.x)
+   - If needed, update Yarn: `yarn set version stable`
 
 ## Project Structure
 
