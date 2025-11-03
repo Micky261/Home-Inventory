@@ -128,14 +128,14 @@ chmod -R 755 database/
 ```
 </details>
 
-### Database Migrations
+### Database Setup
 
-**Important**: If you're updating an existing installation, you need to run database migrations to apply schema changes.
+The database is created automatically on first run with the complete schema.
+
+For **future updates** to an existing installation, run migrations:
 
 **On Windows:**
 ```cmd
-# Simply double-click migrate.bat in the project root
-# Or run from command line:
 migrate.bat
 ```
 
@@ -145,15 +145,9 @@ cd backend
 php migrate.php
 ```
 
-The migration system will:
-- Create new tables (categories, tags, item_tags)
-- Add the `path` column to locations for hierarchical support
-- Update the items table structure
-- Preserve all existing data
+**Note**: Migrations are only needed when updating an existing installation. Fresh installations create the complete schema automatically.
 
-**Migration files are located in**: `backend/migrations/`
-
-**See**: `backend/migrations/README.md` for detailed migration documentation.
+**See**: `backend/migrations/README.md` for migration documentation.
 
 ### Frontend Setup
 

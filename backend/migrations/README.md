@@ -60,9 +60,9 @@ CREATE TABLE IF NOT EXISTS example (
 
 ## Migration History
 
-| Migration | Description | Date |
-|-----------|-------------|------|
-| 001 | Add categories, tags, and hierarchical locations | 2025-01-03 |
+No migrations yet. The initial database schema is created automatically by `Database.php`.
+
+Future schema changes will be added here as numbered migration files.
 
 ## Troubleshooting
 
