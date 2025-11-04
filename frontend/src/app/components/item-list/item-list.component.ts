@@ -20,7 +20,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
             + Artikel hinzufügen
           </button>
           <button class="btn btn-primary" (click)="goToSettings()" i18n="@@items.settings">
-            ⚙️ Einstellungen
+            Einstellungen
           </button>
           <button class="btn btn-secondary" (click)="logout()" i18n="@@app.logout">
             Abmelden

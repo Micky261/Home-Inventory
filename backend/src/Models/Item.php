@@ -41,8 +41,22 @@ class Item
         $params = [];
 
         if ($search) {
-            $sql .= ' AND (i.name LIKE :search OR c.name LIKE :search OR l.name LIKE :search OR l.path LIKE :search)';
-            $params[':search'] = '%' . $search . '%';
+            // Fuzzy search: split search terms and find items matching all words
+            $searchTerms = preg_split('/\s+/', trim($search));
+            $searchConditions = [];
+
+            foreach ($searchTerms as $index => $term) {
+                if (!empty($term)) {
+                    $placeholder = ':search' . $index;
+                    $searchConditions[] = '(i.name LIKE ' . $placeholder . ' OR c.name LIKE ' . $placeholder .
+                                         ' OR l.name LIKE ' . $placeholder . ' OR l.path LIKE ' . $placeholder . ')';
+                    $params[$placeholder] = '%' . $term . '%';
+                }
+            }
+
+            if (!empty($searchConditions)) {
+                $sql .= ' AND (' . implode(' AND ', $searchConditions) . ')';
+            }
         }
 
         // Category filter - Union (OR) or Intersect (AND)

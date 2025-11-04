@@ -333,11 +333,34 @@ import { Category, Location, Tag } from '../../models/item.model';
       flex-shrink: 0;
     }
 
-    .add-form select {
+    .add-form select, .edit-location select {
       min-width: 150px;
       max-width: 200px;
       height: 38px;
       flex-shrink: 0;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="%23333" d="M1 1l5 5 5-5"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 32px;
+    }
+
+    .add-form select:hover, .edit-location select:hover {
+      border-color: #3498db;
+    }
+
+    .add-form select:focus, .edit-location select:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
     }
 
     .add-form .btn {
