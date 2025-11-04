@@ -213,7 +213,9 @@ import { Category, Location, Tag } from '../../models/item.model';
 
           <div class="items-list">
             <div *ngFor="let tag of tags" class="item-row">
-              <span *ngIf="editingTag !== tag.id" class="tag-badge" [style.background-color]="tag.color">
+              <span *ngIf="editingTag !== tag.id" class="tag-badge"
+                    [style.background-color]="tag.color"
+                    [style.color]="getTextColor(tag.color)">
                 {{ tag.name }}
               </span>
               <div *ngIf="editingTag === tag.id" class="edit-tag">
@@ -278,6 +280,11 @@ import { Category, Location, Tag } from '../../models/item.model';
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div class="toast" [class.show]="toastVisible">
+        {{ toastMessage }}
       </div>
     </div>
   `,
@@ -384,7 +391,6 @@ import { Category, Location, Tag } from '../../models/item.model';
       display: inline-block;
       padding: 4px 12px;
       border-radius: 12px;
-      color: white;
       font-size: 14px;
       font-weight: 500;
     }
@@ -530,6 +536,30 @@ import { Category, Location, Tag } from '../../models/item.model';
       flex: 1;
       min-width: 150px;
     }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #27ae60;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 1000;
+      font-weight: 500;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
   `]
 })
 export class SettingsComponent implements OnInit {
@@ -569,6 +599,10 @@ export class SettingsComponent implements OnInit {
   ];
 
   showColorPicker = false;
+
+  // Toast notification
+  toastMessage = '';
+  toastVisible = false;
 
   editingCategory: number | null = null;
   editCategoryName = '';
@@ -614,8 +648,10 @@ export class SettingsComponent implements OnInit {
   addCategory() {
     if (!this.newCategory.trim()) return;
 
-    this.apiService.createCategory(this.newCategory).subscribe({
+    const categoryName = this.newCategory;
+    this.apiService.createCategory(categoryName).subscribe({
       next: () => {
+        this.showToast(`Kategorie "${categoryName}" wurde hinzugefügt`);
         this.newCategory = '';
         this.loadData();
       },
@@ -662,11 +698,12 @@ export class SettingsComponent implements OnInit {
   addLocation() {
     if (!this.newLocation.trim()) return;
 
+    const locationName = this.newLocation;
     const parentId = this.newLocationParent ? Number(this.newLocationParent) : undefined;
-    this.apiService.createLocation(this.newLocation, parentId).subscribe({
+    this.apiService.createLocation(locationName, parentId).subscribe({
       next: () => {
-        this.newLocation = '';
-        this.newLocationParent = null;
+        this.showToast(`Ort "${locationName}" wurde hinzugefügt`);
+        // Keep input values for quick consecutive additions
         this.loadData();
       },
       error: (err) => {
@@ -714,8 +751,10 @@ export class SettingsComponent implements OnInit {
   addTag() {
     if (!this.newTag.trim()) return;
 
-    this.apiService.createTag(this.newTag, this.newTagColor).subscribe({
+    const tagName = this.newTag;
+    this.apiService.createTag(tagName, this.newTagColor).subscribe({
       next: () => {
+        this.showToast(`Tag "${tagName}" wurde hinzugefügt`);
         this.newTag = '';
         this.newTagColor = '#3498db';
         this.loadData();
@@ -791,5 +830,28 @@ export class SettingsComponent implements OnInit {
 
   selectEditColor(color: string) {
     this.editTagColor = color;
+  }
+
+  showToast(message: string) {
+    this.toastMessage = message;
+    this.toastVisible = true;
+    setTimeout(() => {
+      this.toastVisible = false;
+    }, 3000);
+  }
+
+  // Calculate text color based on background luminance
+  getTextColor(backgroundColor: string): string {
+    // Convert hex to RGB
+    const hex = backgroundColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calculate relative luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return white for dark backgrounds, black for light backgrounds
+    return luminance > 0.5 ? '#000000' : '#ffffff';
   }
 }

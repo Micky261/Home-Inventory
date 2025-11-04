@@ -179,7 +179,9 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                   [checked]="filterTags.includes(tag.id)"
                   (change)="toggleFilter('tag', tag.id)"
                 />
-                <span class="tag-badge" [style.background-color]="tag.color">
+                <span class="tag-badge"
+                      [style.background-color]="tag.color"
+                      [style.color]="getTextColor(tag.color)">
                   {{ tag.name }}
                 </span>
               </label>
@@ -234,6 +236,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                     *ngFor="let tag of item.tags"
                     class="tag-badge"
                     [style.background-color]="tag.color"
+                    [style.color]="getTextColor(tag.color)"
                   >
                     {{ tag.name }}
                   </span>
@@ -325,6 +328,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                   *ngFor="let tag of item.tags"
                   class="tag-badge"
                   [style.background-color]="tag.color"
+                  [style.color]="getTextColor(tag.color)"
                 >
                   {{ tag.name }}
                 </span>
@@ -411,7 +415,6 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
       display: inline-block;
       padding: 3px 10px;
       border-radius: 10px;
-      color: white;
       font-size: 12px;
       font-weight: 500;
     }
@@ -883,5 +886,20 @@ export class ItemListComponent implements OnInit {
   logout() {
     localStorage.removeItem('auth_token');
     this.router.navigate(['/login']);
+  }
+
+  // Calculate text color based on background luminance
+  getTextColor(backgroundColor: string): string {
+    // Convert hex to RGB
+    const hex = backgroundColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calculate relative luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return white for dark backgrounds, black for light backgrounds
+    return luminance > 0.5 ? '#000000' : '#ffffff';
   }
 }

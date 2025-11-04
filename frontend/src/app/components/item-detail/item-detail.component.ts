@@ -58,6 +58,7 @@ import { ApiService } from '../../services/api.service';
                   *ngFor="let tag of item.tags"
                   class="tag-badge"
                   [style.background-color]="tag.color"
+                  [style.color]="getTextColor(tag.color)"
                 >
                   {{ tag.name }}
                 </span>
@@ -202,7 +203,6 @@ import { ApiService } from '../../services/api.service';
       display: inline-block;
       padding: 5px 12px;
       border-radius: 12px;
-      color: white;
       font-size: 13px;
       font-weight: 500;
     }
@@ -301,5 +301,20 @@ export class ItemDetailComponent {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  // Calculate text color based on background luminance
+  getTextColor(backgroundColor: string): string {
+    // Convert hex to RGB
+    const hex = backgroundColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calculate relative luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return white for dark backgrounds, black for light backgrounds
+    return luminance > 0.5 ? '#000000' : '#ffffff';
   }
 }

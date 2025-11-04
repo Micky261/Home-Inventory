@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="boxGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Box base -->
+  <polygon points="50,20 80,35 80,65 50,80 20,65 20,35" fill="url(#boxGradient)" stroke="#2c3e50" stroke-width="2"/>
+  <!-- Box top -->
+  <polygon points="50,5 80,20 50,35 20,20" fill="#5dade2" stroke="#2c3e50" stroke-width="2"/>
+  <!-- Box left side -->
+  <polygon points="20,20 20,50 50,65 50,35" fill="#3498db" stroke="#2c3e50" stroke-width="2"/>
+  <!-- Box right side -->
+  <polygon points="50,35 50,65 80,50 80,20" fill="#2e86c1" stroke="#2c3e50" stroke-width="2"/>
+  <!-- Checkmark -->
+  <path d="M 35,45 L 43,53 L 60,36" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
