@@ -174,15 +174,11 @@ import { Category, Location, Tag } from '../../models/item.model';
               i18n-placeholder="@@settings.newTag"
               (keyup.enter)="addTag()"
             />
-            <div class="color-selector">
-              <div class="color-preview" [style.background-color]="newTagColor"></div>
-              <button
-                class="btn btn-sm btn-secondary"
-                (click)="showColorPicker = !showColorPicker"
-                i18n="@@settings.selectColor"
-              >
-                {{ showColorPicker ? 'Schließen' : 'Farbe wählen' }}
-              </button>
+            <div class="color-preview"
+                 [style.background-color]="newTagColor"
+                 (click)="showColorPicker = !showColorPicker"
+                 [title]="showColorPicker ? 'Schließen' : 'Farbe wählen'"
+                 i18n-title="@@settings.selectColor">
             </div>
             <button class="btn btn-success" (click)="addTag()" i18n="@@settings.add">
               Hinzufügen
@@ -192,23 +188,10 @@ import { Category, Location, Tag } from '../../models/item.model';
           <!-- Color Palette -->
           <div *ngIf="showColorPicker" class="color-palette">
             <div class="palette-section">
-              <label i18n="@@settings.standardColors">Standardfarben:</label>
+              <label i18n="@@settings.availableColors">Verfügbare Farben:</label>
               <div class="color-grid">
                 <button
-                  *ngFor="let color of predefinedColors"
-                  class="color-swatch"
-                  [style.background-color]="color"
-                  [class.selected]="newTagColor === color"
-                  (click)="selectColor(color)"
-                  [title]="color"
-                ></button>
-              </div>
-            </div>
-            <div class="palette-section" *ngIf="customColors.length > 0">
-              <label i18n="@@settings.customColors">Eigene Farben:</label>
-              <div class="color-grid">
-                <button
-                  *ngFor="let color of customColors"
+                  *ngFor="let color of allColors"
                   class="color-swatch"
                   [style.background-color]="color"
                   [class.selected]="newTagColor === color"
@@ -246,16 +229,8 @@ import { Category, Location, Tag } from '../../models/item.model';
                 <div class="edit-color-palette">
                   <div class="color-grid-compact">
                     <button
-                      *ngFor="let color of predefinedColors"
+                      *ngFor="let color of allColors"
                       class="color-swatch-small"
-                      [style.background-color]="color"
-                      [class.selected]="editTagColor === color"
-                      (click)="selectEditColor(color)"
-                      [title]="color"
-                    ></button>
-                    <button
-                      *ngFor="let color of customColors"
-                      class="color-swatch-small custom"
                       [style.background-color]="color"
                       [class.selected]="editTagColor === color"
                       (click)="selectEditColor(color)"
@@ -422,13 +397,6 @@ import { Category, Location, Tag } from '../../models/item.model';
     }
 
     /* Color Selector Styles */
-    .color-selector {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
     .color-preview {
       width: 38px;
       height: 38px;
@@ -436,6 +404,13 @@ import { Category, Location, Tag } from '../../models/item.model';
       border: 2px solid #ddd;
       cursor: pointer;
       flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .color-preview:hover {
+      border-color: #3498db;
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
     }
 
     .color-preview-small {
@@ -444,12 +419,6 @@ import { Category, Location, Tag } from '../../models/item.model';
       border-radius: 4px;
       border: 2px solid #ddd;
       flex-shrink: 0;
-    }
-
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 14px;
-      height: 38px;
     }
 
     .color-palette {
@@ -478,7 +447,7 @@ import { Category, Location, Tag } from '../../models/item.model';
 
     .color-grid {
       display: grid;
-      grid-template-columns: repeat(10, 36px);
+      grid-template-columns: repeat(8, 36px);
       gap: 8px;
     }
 
@@ -515,7 +484,7 @@ import { Category, Location, Tag } from '../../models/item.model';
 
     .color-grid-compact {
       display: grid;
-      grid-template-columns: repeat(10, 24px);
+      grid-template-columns: repeat(8, 24px);
       gap: 4px;
     }
 
@@ -538,10 +507,6 @@ import { Category, Location, Tag } from '../../models/item.model';
     .color-swatch-small.selected {
       border: 2px solid #333;
       box-shadow: 0 0 0 1px #fff, 0 0 0 3px #333;
-    }
-
-    .color-swatch-small.custom {
-      border: 2px solid #9c27b0;
     }
 
     .color-picker-inline {
@@ -812,6 +777,11 @@ export class SettingsComponent implements OnInit {
     const custom = usedColors.filter(color => !predefinedLower.includes(color));
     // Return unique colors
     return [...new Set(custom)];
+  }
+
+  // Get all colors (predefined + custom combined)
+  get allColors(): string[] {
+    return [...this.predefinedColors, ...this.customColors];
   }
 
   selectColor(color: string) {

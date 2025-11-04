@@ -558,16 +558,10 @@
         <target>Farbe wählen</target>
       </segment>
     </unit>
-    <unit id="settings.standardColors">
+    <unit id="settings.availableColors">
       <segment>
-        <source>Standard Colors</source>
-        <target>Standardfarben</target>
-      </segment>
-    </unit>
-    <unit id="settings.customColors">
-      <segment>
-        <source>Custom Colors</source>
-        <target>Eigene Farben</target>
+        <source>Available Colors</source>
+        <target>Verfügbare Farben</target>
       </segment>
     </unit>
     <unit id="settings.customColorPicker">
