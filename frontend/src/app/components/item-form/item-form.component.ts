@@ -176,7 +176,7 @@ import { ApiService } from '../../services/api.service';
                   (change)="onDatasheetUpload($event)"
                 />
                 <div *ngIf="formData.datenblatt_value" class="file-preview">
-                  📄 {{ formData.datenblatt_value }}
+                  {{ formData.datenblatt_value }}
                 </div>
               </div>
             </div>

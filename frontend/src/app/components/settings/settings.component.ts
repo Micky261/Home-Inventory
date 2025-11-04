@@ -58,24 +58,24 @@ import { Category, Location, Tag } from '../../models/item.model';
                   title="Bearbeiten"
                   i18n-title="@@settings.edit"
                 >
-                  ✏️
+                  Edit
                 </button>
                 <button
                   *ngIf="editingCategory === category.id"
-                  class="icon-btn"
+                  class="icon-btn save-btn"
                   (click)="saveCategory(category.id)"
                   title="Speichern"
                   i18n-title="@@settings.save"
                 >
-                  ✓
+                  Save
                 </button>
                 <button
-                  class="icon-btn"
+                  class="icon-btn delete-btn"
                   (click)="deleteCategory(category.id)"
                   title="Löschen"
                   i18n-title="@@settings.delete"
                 >
-                  🗑️
+                  Delete
                 </button>
               </div>
             </div>
@@ -135,7 +135,7 @@ import { Category, Location, Tag } from '../../models/item.model';
                   title="Bearbeiten"
                   i18n-title="@@settings.edit"
                 >
-                  ✏️
+                  Edit
                 </button>
                 <button
                   *ngIf="editingLocation === location.id"
@@ -144,7 +144,7 @@ import { Category, Location, Tag } from '../../models/item.model';
                   title="Speichern"
                   i18n-title="@@settings.save"
                 >
-                  ✓
+                  Save
                 </button>
                 <button
                   class="icon-btn"
@@ -152,7 +152,7 @@ import { Category, Location, Tag } from '../../models/item.model';
                   title="Löschen"
                   i18n-title="@@settings.delete"
                 >
-                  🗑️
+                  Delete
                 </button>
               </div>
             </div>
@@ -254,7 +254,7 @@ import { Category, Location, Tag } from '../../models/item.model';
                   title="Bearbeiten"
                   i18n-title="@@settings.edit"
                 >
-                  ✏️
+                  Edit
                 </button>
                 <button
                   *ngIf="editingTag === tag.id"
@@ -263,7 +263,7 @@ import { Category, Location, Tag } from '../../models/item.model';
                   title="Speichern"
                   i18n-title="@@settings.save"
                 >
-                  ✓
+                  Save
                 </button>
                 <button
                   class="icon-btn"
@@ -271,7 +271,7 @@ import { Category, Location, Tag } from '../../models/item.model';
                   title="Löschen"
                   i18n-title="@@settings.delete"
                 >
-                  🗑️
+                  Delete
                 </button>
               </div>
             </div>
