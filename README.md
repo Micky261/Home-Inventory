@@ -43,7 +43,24 @@ Each inventory item includes:
 
 ## Installation
 
-### Prerequisites
+### Quick Start with Docker (Recommended)
+
+The easiest way to run the application is with Docker:
+
+```bash
+# Build and start all containers
+docker-compose up -d
+
+# Access the application at http://localhost
+```
+
+Login with `admin` / `admin` and change the password after first login.
+
+**For detailed Docker instructions, see [DOCKER.md](DOCKER.md)**
+
+### Manual Installation
+
+#### Prerequisites
 
 - PHP 7.4 or higher with PDO SQLite extension
 - Composer

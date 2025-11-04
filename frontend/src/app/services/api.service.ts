@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Item, Location, Category, Tag } from '../models/item.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  // Use PHP development server on port 9000
-  private apiUrl = 'http://localhost:9000/api';
-  private uploadUrl = 'http://localhost:9000';
+  private apiUrl = environment.apiUrl;
+  private uploadUrl = environment.uploadUrl;
 
   constructor(private http: HttpClient) {}
 

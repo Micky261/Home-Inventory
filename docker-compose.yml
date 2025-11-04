@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Backend API (PHP + SQLite)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: home-inventory-backend
+    restart: unless-stopped
+    volumes:
+      # Persist database
+      - ./data:/var/www/html/data
+      # Persist uploads
+      - ./uploads:/var/www/html/uploads
+      # Mount backend code for development (optional, comment out for production)
+      # - ./backend:/var/www/html
+    environment:
+      - PHP_DISPLAY_ERRORS=Off
+      - PHP_ERROR_REPORTING=E_ALL
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/api/categories"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend (Angular + nginx)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: home-inventory-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  data:
+    driver: local
+  uploads:
+    driver: local

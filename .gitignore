@@ -38,3 +38,9 @@ Thumbs.db
 
 # Environment
 backend/config/config.php
+.env
+
+# Docker
+data/
+data/*.db
+data/*.db-journal
