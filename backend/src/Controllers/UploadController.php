@@ -117,6 +117,66 @@ class UploadController
         return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
     }
 
+    public function downloadDatasheetFromUrl(Request $request, Response $response)
+    {
+        $data = json_decode($request->getBody(), true);
+
+        if (!isset($data['url']) || empty($data['url'])) {
+            $response->getBody()->write(json_encode(['error' => 'No URL provided']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        $url = $data['url'];
+
+        // Validate URL
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid URL']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        try {
+            // Download file content
+            $fileContent = @file_get_contents($url);
+
+            if ($fileContent === false) {
+                $response->getBody()->write(json_encode(['error' => 'Failed to download file from URL']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Get file extension from URL
+            $urlPath = parse_url($url, PHP_URL_PATH);
+            $extension = pathinfo($urlPath, PATHINFO_EXTENSION);
+
+            // Default to pdf if no extension found
+            if (empty($extension)) {
+                $extension = 'pdf';
+            }
+
+            // Validate extension
+            if (!in_array(strtolower($extension), ['pdf', 'doc', 'docx'])) {
+                $response->getBody()->write(json_encode(['error' => 'Invalid file type. Allowed: PDF, DOC, DOCX']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Generate unique filename
+            $filename = uniqid() . '_' . time() . '.' . $extension;
+            $targetPath = $this->config['uploads']['datasheets'] . $filename;
+
+            // Save file
+            if (file_put_contents($targetPath, $fileContent) === false) {
+                $response->getBody()->write(json_encode(['error' => 'Failed to save file']));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write(json_encode(['filename' => $filename]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['error' => 'Error downloading file: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
     private function generateUniqueFilename($originalFilename)
     {
         $extension = pathinfo($originalFilename, PATHINFO_EXTENSION);

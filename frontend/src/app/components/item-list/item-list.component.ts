@@ -20,7 +20,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
             + Artikel hinzufügen
           </button>
           <button class="btn btn-primary" (click)="goToSettings()" i18n="@@items.settings">
-            Einstellungen
+            ⚙️ Einstellungen
           </button>
           <button class="btn btn-secondary" (click)="logout()" i18n="@@app.logout">
             Abmelden
@@ -246,10 +246,10 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
               <td (click)="$event.stopPropagation()">
                 <div class="action-buttons">
                   <button class="icon-btn" (click)="editItem(item)" title="Bearbeiten" i18n-title="@@items.edit">
-                    Edit
+                    ✏️
                   </button>
                   <button class="icon-btn" (click)="deleteItem(item)" title="Löschen" i18n-title="@@items.delete">
-                    Delete
+                    🗑️
                   </button>
                   <a
                     *ngIf="item.link"
@@ -259,7 +259,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                     title="Link öffnen"
                     i18n-title="@@items.openLink"
                   >
-                    Link
+                    🔗
                   </a>
                   <a
                     *ngIf="item.datenblatt_type === 'file' && item.datenblatt_value"
@@ -269,7 +269,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                     title="Datenblatt anzeigen"
                     i18n-title="@@items.viewDatasheet"
                   >
-                    File
+                    📄
                   </a>
                   <a
                     *ngIf="item.datenblatt_type === 'url' && item.datenblatt_value"
@@ -279,7 +279,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                     title="Datenblatt anzeigen"
                     i18n-title="@@items.viewDatasheet"
                   >
-                    File
+                    📄
                   </a>
                 </div>
               </td>
@@ -336,10 +336,10 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
             </div>
             <div class="card-actions" (click)="$event.stopPropagation()">
               <button class="icon-btn" (click)="editItem(item)" title="Bearbeiten" i18n-title="@@items.edit">
-                Edit
+                ✏️
               </button>
               <button class="icon-btn" (click)="deleteItem(item)" title="Löschen" i18n-title="@@items.delete">
-                Delete
+                🗑️
               </button>
               <a
                 *ngIf="item.link"
@@ -349,7 +349,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                 title="Link öffnen"
                 i18n-title="@@items.openLink"
               >
-                Link
+                🔗
               </a>
               <a
                 *ngIf="item.datenblatt_type === 'file' && item.datenblatt_value"
@@ -359,7 +359,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                 title="Datenblatt anzeigen"
                 i18n-title="@@items.viewDatasheet"
               >
-                File
+                📄
               </a>
               <a
                 *ngIf="item.datenblatt_type === 'url' && item.datenblatt_value"
@@ -369,7 +369,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                 title="Datenblatt anzeigen"
                 i18n-title="@@items.viewDatasheet"
               >
-                File
+                📄
               </a>
             </div>
           </div>

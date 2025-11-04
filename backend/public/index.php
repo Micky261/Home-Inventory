@@ -77,6 +77,7 @@ $app->group('/api', function ($group) use ($itemController, $locationController,
     // Uploads
     $group->post('/upload/image', [$uploadController, 'uploadImage']);
     $group->post('/upload/datasheet', [$uploadController, 'uploadDatasheet']);
+    $group->post('/upload/datasheet-from-url', [$uploadController, 'downloadDatasheetFromUrl']);
     $group->post('/upload/delete', [$uploadController, 'deleteFile']);
 })->add(new AuthMiddleware($config));
 

@@ -217,6 +217,12 @@ export class ApiService {
     });
   }
 
+  downloadDatasheetFromUrl(url: string): Observable<{ filename: string }> {
+    return this.http.post<{ filename: string }>(`${this.apiUrl}/upload/datasheet-from-url`, { url }, {
+      headers: this.getHeaders()
+    });
+  }
+
   deleteFile(filename: string, type: 'image' | 'datasheet'): Observable<any> {
     return this.http.post(`${this.apiUrl}/upload/delete`, { filename, type }, {
       headers: this.getHeaders()

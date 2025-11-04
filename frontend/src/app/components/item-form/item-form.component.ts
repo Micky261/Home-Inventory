@@ -157,12 +157,15 @@ import { ApiService } from '../../services/api.service';
             </div>
 
             <div *ngIf="formData.datenblatt_type === 'url'" class="form-group">
-              <label i18n="@@form.datasheetUrl">Datenblatt-URL</label>
+              <label i18n="@@form.datasheetUrl">Datenblatt-URL (wird automatisch heruntergeladen)</label>
               <input
                 type="url"
                 [(ngModel)]="formData.datenblatt_value"
                 name="datenblatt_value"
+                (blur)="onDatasheetUrlBlur()"
+                placeholder="https://example.com/document.pdf"
               />
+              <small *ngIf="downloadingDatasheet" class="downloading-hint">Datenblatt wird heruntergeladen...</small>
             </div>
 
             <div *ngIf="formData.datenblatt_type === 'file'" class="form-group">
@@ -176,7 +179,7 @@ import { ApiService } from '../../services/api.service';
                   (change)="onDatasheetUpload($event)"
                 />
                 <div *ngIf="formData.datenblatt_value" class="file-preview">
-                  {{ formData.datenblatt_value }}
+                  📄 {{ formData.datenblatt_value }}
                 </div>
               </div>
             </div>
@@ -281,6 +284,13 @@ import { ApiService } from '../../services/api.service';
       padding: 8px 16px;
       font-size: 14px;
     }
+
+    .downloading-hint {
+      display: block;
+      margin-top: 5px;
+      color: #3498db;
+      font-style: italic;
+    }
   `]
 })
 export class ItemFormComponent implements OnInit {
@@ -288,6 +298,8 @@ export class ItemFormComponent implements OnInit {
   @Input() locations: Location[] = [];
   @Output() save = new EventEmitter<Item>();
   @Output() cancel = new EventEmitter<void>();
+
+  downloadingDatasheet = false;
 
   formData: any = {
     name: '',
@@ -395,6 +407,7 @@ export class ItemFormComponent implements OnInit {
       this.apiService.uploadDatasheet(file).subscribe({
         next: (response) => {
           this.formData.datenblatt_value = response.filename;
+          this.formData.datenblatt_type = 'file';
         },
         error: (err) => {
           console.error('Error uploading datasheet:', err);
@@ -402,6 +415,38 @@ export class ItemFormComponent implements OnInit {
         }
       });
     }
+  }
+
+  onDatasheetUrlBlur() {
+    const url = this.formData.datenblatt_value?.trim();
+
+    // Only download if URL is valid and not empty
+    if (!url || !url.startsWith('http')) {
+      return;
+    }
+
+    // Don't download if it's already a filename (not a URL)
+    if (!url.includes('://')) {
+      return;
+    }
+
+    this.downloadingDatasheet = true;
+
+    this.apiService.downloadDatasheetFromUrl(url).subscribe({
+      next: (response) => {
+        // Replace URL with downloaded filename
+        this.formData.datenblatt_value = response.filename;
+        // Change type to file since we now have a local file
+        this.formData.datenblatt_type = 'file';
+        this.downloadingDatasheet = false;
+        alert('Datenblatt erfolgreich heruntergeladen und gespeichert!');
+      },
+      error: (err) => {
+        console.error('Error downloading datasheet:', err);
+        this.downloadingDatasheet = false;
+        alert('Fehler beim Herunterladen des Datenblatts. Bitte überprüfen Sie die URL.');
+      }
+    });
   }
 
   onSubmit() {

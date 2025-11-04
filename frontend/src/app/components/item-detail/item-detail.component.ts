@@ -81,7 +81,7 @@ import { ApiService } from '../../services/api.service';
               class="btn btn-primary"
               i18n="@@items.openLink"
             >
-              Link öffnen
+              🔗 Link öffnen
             </a>
 
             <a
@@ -91,7 +91,7 @@ import { ApiService } from '../../services/api.service';
               class="btn btn-primary"
               i18n="@@items.viewDatasheet"
             >
-              Datenblatt anzeigen
+              📄 Datenblatt anzeigen
             </a>
 
             <a
@@ -101,7 +101,7 @@ import { ApiService } from '../../services/api.service';
               class="btn btn-primary"
               i18n="@@items.viewDatasheet"
             >
-              Datenblatt anzeigen
+              📄 Datenblatt anzeigen
             </a>
           </div>
 
@@ -118,7 +118,7 @@ import { ApiService } from '../../services/api.service';
 
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" (click)="onEdit()" i18n="@@items.edit">
-            Bearbeiten
+            ✏️ Bearbeiten
           </button>
           <button type="button" class="btn btn-secondary" (click)="onClose()" i18n="@@items.close">
             Schließen
