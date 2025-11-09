@@ -563,7 +563,7 @@ import { Category, Location, Tag } from '../../models/item.model';
     /* Toast Notification */
     .toast {
       position: fixed;
-      bottom: 20px;
+      top: 20px;
       right: 20px;
       background: #27ae60;
       color: white;
@@ -571,7 +571,7 @@ import { Category, Location, Tag } from '../../models/item.model';
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(-20px);
       transition: all 0.3s ease;
       pointer-events: none;
       z-index: 1000;
@@ -779,7 +779,7 @@ export class SettingsComponent implements OnInit {
       next: () => {
         this.showToast(`Tag "${tagName}" wurde hinzugefügt`);
         this.newTag = '';
-        this.newTagColor = '#3498db';
+        // Keep the color for next tag
         this.loadData();
       },
       error: (err) => {
