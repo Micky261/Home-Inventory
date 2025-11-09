@@ -108,6 +108,24 @@
         <target>Ort</target>
       </segment>
     </unit>
+    <unit id="items.articleNumber">
+      <segment>
+        <source>Article Number</source>
+        <target>Artikelnummer</target>
+      </segment>
+    </unit>
+    <unit id="items.color">
+      <segment>
+        <source>Color</source>
+        <target>Farbe</target>
+      </segment>
+    </unit>
+    <unit id="items.manufacturer">
+      <segment>
+        <source>Manufacturer</source>
+        <target>Hersteller</target>
+      </segment>
+    </unit>
     <unit id="items.tags">
       <segment>
         <source>Tags</source>
@@ -142,6 +160,12 @@
       <segment>
         <source>Edit</source>
         <target>Bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="items.copy">
+      <segment>
+        <source>Copy</source>
+        <target>Kopieren</target>
       </segment>
     </unit>
     <unit id="items.delete">
@@ -186,6 +210,24 @@
       <segment>
         <source>Name *</source>
         <target>Name *</target>
+      </segment>
+    </unit>
+    <unit id="form.articleNumber">
+      <segment>
+        <source>Article Number</source>
+        <target>Artikelnummer</target>
+      </segment>
+    </unit>
+    <unit id="form.color">
+      <segment>
+        <source>Color</source>
+        <target>Farbe</target>
+      </segment>
+    </unit>
+    <unit id="form.manufacturer">
+      <segment>
+        <source>Manufacturer</source>
+        <target>Hersteller</target>
       </segment>
     </unit>
     <unit id="form.category">
