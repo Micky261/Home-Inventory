@@ -32,6 +32,11 @@ php -S localhost:9000 router.php
 # Test database initialization
 cd backend
 php test-db-init.php
+
+# Regenerate thumbnails (after changing thumbnail size in config)
+cd backend
+php regenerate-thumbnails.php
+# Or on Windows: regenerate-thumbnails.bat (from project root)
 ```
 
 **Backend runs at:** `http://localhost:9000`
@@ -140,7 +145,10 @@ backend/
 
 3. **File Upload System:**
    - `UploadController.php` handles image and datasheet uploads
-   - Images: Auto-generates thumbnails (150x150) using GD library with fallback
+   - Images: Auto-generates thumbnails (400x400 recommended) using GD library with fallback
+   - Thumbnails preserve aspect ratio (no cropping), use object-fit: contain in card view
+   - Regenerate existing thumbnails: `php backend/regenerate-thumbnails.php` or `regenerate-thumbnails.bat`
+   - Thumbnail size configurable in `config.php` (thumbnail_width, thumbnail_height)
    - Datasheets: Can upload file OR provide URL (backend downloads URL to local file)
    - Storage locations configured in `config.php`
 
@@ -285,6 +293,10 @@ When adding image upload features:
 - `UploadController::uploadImage()` automatically calls `generateThumbnail()`
 - Thumbnail generation has GD library fallback (copies original if GD unavailable)
 - Use `@` error suppression on GD functions + try/catch + fallback to copy
+- Thumbnails preserve aspect ratio using `min($maxWidth / $width, $maxHeight / $height)`
+- Recommended size: 400x400 (configured in `config.php`)
+- Display with `object-fit: contain` to prevent cropping in UI
+- Regenerate existing thumbnails after size change: `php backend/regenerate-thumbnails.php`
 
 ## File Locations
 
