@@ -36,6 +36,16 @@ import { ApiService } from '../../services/api.service';
               <span>{{ item.ort_path || item.ort_name }}</span>
             </div>
 
+            <div class="info-item" *ngIf="item.artikelnummer">
+              <label i18n="@@items.articleNumber">Artikelnummer</label>
+              <span>{{ item.artikelnummer }}</span>
+            </div>
+
+            <div class="info-item" *ngIf="item.farbe">
+              <label i18n="@@items.color">Farbe</label>
+              <span>{{ item.farbe }}</span>
+            </div>
+
             <div class="info-item" *ngIf="item.menge">
               <label i18n="@@items.quantity">Menge</label>
               <span>{{ item.menge }} {{ item.einheit || '' }}</span>
@@ -44,6 +54,11 @@ import { ApiService } from '../../services/api.service';
             <div class="info-item" *ngIf="item.preis">
               <label i18n="@@items.price">Preis</label>
               <span>{{ item.preis }} €</span>
+            </div>
+
+            <div class="info-item" *ngIf="item.hersteller">
+              <label i18n="@@items.manufacturer">Hersteller</label>
+              <span>{{ item.hersteller }}</span>
             </div>
 
             <div class="info-item" *ngIf="item.haendler">
@@ -102,6 +117,24 @@ import { ApiService } from '../../services/api.service';
               i18n="@@items.viewDatasheet"
             >
               📄 Datenblatt anzeigen
+            </a>
+
+            <a
+              *ngIf="item.weitere_datei_type === 'url' && item.weitere_datei_value"
+              [href]="item.weitere_datei_value"
+              target="_blank"
+              class="btn btn-primary"
+            >
+              📎 Weitere Datei anzeigen
+            </a>
+
+            <a
+              *ngIf="item.weitere_datei_type === 'file' && item.weitere_datei_value"
+              [href]="getDatasheetUrl(item.weitere_datei_value)"
+              target="_blank"
+              class="btn btn-primary"
+            >
+              📎 Weitere Datei anzeigen
             </a>
           </div>
 

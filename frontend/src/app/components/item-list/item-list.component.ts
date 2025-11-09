@@ -203,31 +203,79 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
         Lädt...
       </div>
 
+      <!-- Bulk Edit Toolbar -->
+      <div *ngIf="selectedItemIds.size > 0" class="bulk-toolbar">
+        <div class="bulk-toolbar-content">
+          <span class="bulk-count">{{ selectedItemIds.size }} ausgewählt</span>
+          <button class="btn btn-primary" (click)="openBulkEdit()">
+            ✏️ Massenbearbeitung
+          </button>
+          <button class="btn btn-secondary" (click)="clearSelection()">
+            Auswahl aufheben
+          </button>
+        </div>
+      </div>
+
       <!-- List View -->
       <div *ngIf="!loading && viewMode === 'list'" class="table-container">
         <table>
           <thead>
             <tr>
+              <th class="checkbox-column">
+                <input
+                  type="checkbox"
+                  [checked]="allSelected"
+                  (change)="toggleSelectAll()"
+                  title="Alle auswählen"
+                />
+              </th>
               <th i18n="@@items.image">Bild</th>
-              <th i18n="@@items.name">Name</th>
-              <th i18n="@@items.category">Kategorie</th>
-              <th i18n="@@items.location">Ort</th>
+              <th class="sortable" (click)="sortBy('name')">
+                <span i18n="@@items.name">Name</span> {{ getSortIcon('name') }}
+              </th>
+              <th class="sortable" (click)="sortBy('category')">
+                <span i18n="@@items.category">Kategorie</span> {{ getSortIcon('category') }}
+              </th>
+              <th class="sortable" (click)="sortBy('location')">
+                <span i18n="@@items.location">Ort</span> {{ getSortIcon('location') }}
+              </th>
               <th i18n="@@items.tags">Tags</th>
               <th i18n="@@items.actions">Aktionen</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let item of items" class="clickable-row" (click)="viewItemDetails(item)">
+              <td (click)="$event.stopPropagation()" class="checkbox-column">
+                <input
+                  type="checkbox"
+                  [checked]="isItemSelected(item.id!)"
+                  (change)="toggleItemSelection(item.id!)"
+                />
+              </td>
               <td>
                 <img
                   *ngIf="item.bild"
-                  [src]="getImageUrl(item.bild)"
+                  [src]="getThumbnailUrl(item.bild)"
                   class="thumbnail"
                   [alt]="item.name"
                 />
                 <div *ngIf="!item.bild" class="no-image" i18n="@@items.noImage">Kein Bild</div>
               </td>
-              <td>{{ item.name }}</td>
+              <td>
+                <div>{{ item.name }}</div>
+                <small class="item-meta" *ngIf="item.artikelnummer || item.farbe || item.menge">
+                  <span *ngIf="item.artikelnummer">Art.-Nr.: {{ item.artikelnummer }}</span>
+                  <span *ngIf="item.artikelnummer && (item.farbe || item.menge)"> • </span>
+                  <span *ngIf="item.farbe">{{ item.farbe }}</span>
+                  <span *ngIf="item.farbe && item.menge"> • </span>
+                  <span *ngIf="item.menge">{{ item.menge }} {{ item.einheit || 'Stk' }}</span>
+                </small>
+                <small class="item-meta" *ngIf="item.hersteller || item.haendler">
+                  <span *ngIf="item.hersteller">{{ item.hersteller }}</span>
+                  <span *ngIf="item.hersteller && item.haendler"> • </span>
+                  <span *ngIf="item.haendler">{{ item.haendler }}</span>
+                </small>
+              </td>
               <td>{{ item.kategorie_name || '-' }}</td>
               <td>{{ item.ort_path || item.ort_name || '-' }}</td>
               <td>
@@ -247,6 +295,9 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                 <div class="action-buttons">
                   <button class="icon-btn" (click)="editItem(item)" title="Bearbeiten" i18n-title="@@items.edit">
                     ✏️
+                  </button>
+                  <button class="icon-btn" (click)="copyItem(item)" title="Kopieren" i18n-title="@@items.copy">
+                    📋
                   </button>
                   <button class="icon-btn" (click)="deleteItem(item)" title="Löschen" i18n-title="@@items.delete">
                     🗑️
@@ -281,6 +332,24 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                   >
                     📄
                   </a>
+                  <a
+                    *ngIf="item.weitere_datei_type === 'file' && item.weitere_datei_value"
+                    [href]="getDatasheetUrl(item.weitere_datei_value)"
+                    target="_blank"
+                    class="icon-btn"
+                    title="Weitere Datei anzeigen"
+                  >
+                    📎
+                  </a>
+                  <a
+                    *ngIf="item.weitere_datei_type === 'url' && item.weitere_datei_value"
+                    [href]="item.weitere_datei_value"
+                    target="_blank"
+                    class="icon-btn"
+                    title="Weitere Datei anzeigen"
+                  >
+                    📎
+                  </a>
                 </div>
               </td>
             </tr>
@@ -299,13 +368,25 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
           <div class="card-image">
             <img
               *ngIf="item.bild"
-              [src]="getImageUrl(item.bild)"
+              [src]="getThumbnailUrl(item.bild)"
               [alt]="item.name"
             />
             <div *ngIf="!item.bild" class="no-image-card" i18n="@@items.noImage">Kein Bild</div>
           </div>
           <div class="card-content">
             <h3>{{ item.name }}</h3>
+            <small class="item-meta" *ngIf="item.artikelnummer || item.farbe || item.menge">
+              <span *ngIf="item.artikelnummer">Art.-Nr.: {{ item.artikelnummer }}</span>
+              <span *ngIf="item.artikelnummer && (item.farbe || item.menge)"> • </span>
+              <span *ngIf="item.farbe">{{ item.farbe }}</span>
+              <span *ngIf="item.farbe && item.menge"> • </span>
+              <span *ngIf="item.menge">{{ item.menge }} {{ item.einheit || 'Stk' }}</span>
+            </small>
+            <small class="item-meta" *ngIf="item.hersteller || item.haendler">
+              <span *ngIf="item.hersteller">{{ item.hersteller }}</span>
+              <span *ngIf="item.hersteller && item.haendler"> • </span>
+              <span *ngIf="item.haendler">{{ item.haendler }}</span>
+            </small>
             <div class="card-info">
               <div *ngIf="item.kategorie_name" class="info-row">
                 <span class="label" i18n="@@items.category">Kategorie</span>
@@ -314,10 +395,6 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
               <div *ngIf="item.ort_path || item.ort_name" class="info-row">
                 <span class="label" i18n="@@items.location">Ort</span>
                 <span>{{ item.ort_path || item.ort_name }}</span>
-              </div>
-              <div *ngIf="item.menge" class="info-row">
-                <span class="label" i18n="@@items.quantity">Menge</span>
-                <span>{{ item.menge }} {{ item.einheit || '' }}</span>
               </div>
               <div *ngIf="item.preis" class="info-row">
                 <span class="label" i18n="@@items.price">Preis</span>
@@ -337,6 +414,9 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
             <div class="card-actions" (click)="$event.stopPropagation()">
               <button class="icon-btn" (click)="editItem(item)" title="Bearbeiten" i18n-title="@@items.edit">
                 ✏️
+              </button>
+              <button class="icon-btn" (click)="copyItem(item)" title="Kopieren" i18n-title="@@items.copy">
+                📋
               </button>
               <button class="icon-btn" (click)="deleteItem(item)" title="Löschen" i18n-title="@@items.delete">
                 🗑️
@@ -371,6 +451,24 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
               >
                 📄
               </a>
+              <a
+                *ngIf="item.weitere_datei_type === 'file' && item.weitere_datei_value"
+                [href]="getDatasheetUrl(item.weitere_datei_value)"
+                target="_blank"
+                class="icon-btn"
+                title="Weitere Datei anzeigen"
+              >
+                📎
+              </a>
+              <a
+                *ngIf="item.weitere_datei_type === 'url' && item.weitere_datei_value"
+                [href]="item.weitere_datei_value"
+                target="_blank"
+                class="icon-btn"
+                title="Weitere Datei anzeigen"
+              >
+                📎
+              </a>
             </div>
           </div>
         </div>
@@ -394,6 +492,79 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
       (close)="closeDetail()"
       (edit)="editFromDetail($event)"
     ></app-item-detail>
+
+    <!-- Bulk Edit Modal -->
+    <div *ngIf="showBulkEdit" class="modal-overlay" (click)="closeBulkEdit()">
+      <div class="modal bulk-edit-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Massenbearbeitung</h2>
+          <button class="icon-btn" (click)="closeBulkEdit()">✖</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="bulk-info">
+            <strong>{{ selectedItemIds.size }}</strong> Artikel ausgewählt
+          </div>
+
+          <div class="form-group">
+            <label>Kategorie setzen</label>
+            <select [(ngModel)]="bulkEditCategory" class="form-control">
+              <option [value]="null">-- Nicht ändern --</option>
+              <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Ort setzen</label>
+            <select [(ngModel)]="bulkEditLocation" class="form-control">
+              <option [value]="null">-- Nicht ändern --</option>
+              <option *ngFor="let loc of locations" [value]="loc.id">{{ loc.path || loc.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Tags hinzufügen</label>
+            <div class="tag-selection">
+              <label *ngFor="let tag of tags" class="tag-option">
+                <input
+                  type="checkbox"
+                  [checked]="bulkAddTags.includes(tag.id!)"
+                  (change)="toggleBulkAddTag(tag.id!)"
+                />
+                <span class="tag-badge" [style.background-color]="tag.color" [style.color]="getTextColor(tag.color)">
+                  {{ tag.name }}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Tags entfernen</label>
+            <div class="tag-selection">
+              <label *ngFor="let tag of tags" class="tag-option">
+                <input
+                  type="checkbox"
+                  [checked]="bulkRemoveTags.includes(tag.id!)"
+                  (change)="toggleBulkRemoveTag(tag.id!)"
+                />
+                <span class="tag-badge" [style.background-color]="tag.color" [style.color]="getTextColor(tag.color)">
+                  {{ tag.name }}
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" (click)="applyBulkEdit()">
+              Änderungen übernehmen
+            </button>
+            <button class="btn btn-secondary" (click)="closeBulkEdit()">
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   `,
   styles: [`
     .clickable-row {
@@ -409,6 +580,33 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
+    }
+
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sortable:hover {
+      background-color: #2c3e50;
+    }
+
+    table th:last-child,
+    table td:last-child {
+      width: 200px;
+      min-width: 200px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+
+    .item-meta {
+      display: block;
+      color: #7f8c8d;
+      margin-top: 4px;
     }
 
     .tag-badge {
@@ -686,6 +884,95 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
       font-style: italic;
       font-size: 16px;
     }
+
+    .checkbox-column {
+      width: 40px;
+      text-align: center;
+    }
+
+    .bulk-toolbar {
+      background: #3498db;
+      color: white;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .bulk-toolbar-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bulk-count {
+      font-weight: 600;
+      margin-right: auto;
+    }
+
+    .bulk-edit-modal {
+      max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .bulk-info {
+      background: #e3f2fd;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 24px;
+      color: #1976d2;
+      font-size: 14px;
+    }
+
+    .bulk-info strong {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .tag-selection {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      min-height: 50px;
+    }
+
+    .tag-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: white;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tag-option:hover {
+      border-color: #3498db;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .tag-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px solid #ecf0f1;
+    }
   `]
 })
 export class ItemListComponent implements OnInit {
@@ -707,6 +994,16 @@ export class ItemListComponent implements OnInit {
   showFilters = false;
   showDetail = false;
   detailItem: Item | null = null;
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  // Bulk edit
+  selectedItemIds: Set<number> = new Set();
+  showBulkEdit = false;
+  bulkEditCategory: number | null = null;
+  bulkEditLocation: number | null = null;
+  bulkAddTags: number[] = [];
+  bulkRemoveTags: number[] = [];
 
   constructor(
     private apiService: ApiService,
@@ -722,6 +1019,8 @@ export class ItemListComponent implements OnInit {
     this.apiService.getItems().subscribe({
       next: (items) => {
         this.items = items;
+        // Apply default sort: location -> category -> name
+        this.applyDefaultSort();
         this.loading = false;
       },
       error: (err) => {
@@ -811,6 +1110,32 @@ export class ItemListComponent implements OnInit {
     this.showModal = true;
   }
 
+  copyItem(item: Item) {
+    // Create a copy without ID (will be created as new item)
+    const itemCopy: Item = {
+      name: item.name,
+      artikelnummer: item.artikelnummer,
+      farbe: item.farbe,
+      kategorie_id: item.kategorie_id,
+      ort_id: item.ort_id,
+      menge: item.menge,
+      einheit: item.einheit,
+      hersteller: item.hersteller,
+      haendler: item.haendler,
+      preis: item.preis,
+      link: item.link,
+      datenblatt_type: item.datenblatt_type,
+      datenblatt_value: item.datenblatt_value,
+      weitere_datei_type: item.weitere_datei_type,
+      weitere_datei_value: item.weitere_datei_value,
+      bild: item.bild,
+      notizen: item.notizen,
+      tag_ids: item.tags?.map(t => t.id) || []
+    };
+    this.selectedItem = itemCopy;
+    this.showModal = true;
+  }
+
   deleteItem(item: Item) {
     if (confirm('Möchten Sie diesen Artikel wirklich löschen?')) {
       this.apiService.deleteItem(item.id!).subscribe({
@@ -875,6 +1200,10 @@ export class ItemListComponent implements OnInit {
     return this.apiService.getImageUrl(filename);
   }
 
+  getThumbnailUrl(filename: string): string {
+    return this.apiService.getThumbnailUrl(filename);
+  }
+
   getDatasheetUrl(filename: string): string {
     return this.apiService.getDatasheetUrl(filename);
   }
@@ -886,6 +1215,72 @@ export class ItemListComponent implements OnInit {
   logout() {
     localStorage.removeItem('auth_token');
     this.router.navigate(['/login']);
+  }
+
+  applyDefaultSort() {
+    // Default sort: location -> category -> name (all ascending)
+    this.items.sort((a, b) => {
+      // First by location
+      const locA = (a.ort_path || a.ort_name || '').toLowerCase();
+      const locB = (b.ort_path || b.ort_name || '').toLowerCase();
+      if (locA !== locB) {
+        return locA.localeCompare(locB);
+      }
+
+      // Then by category
+      const catA = (a.kategorie_name || '').toLowerCase();
+      const catB = (b.kategorie_name || '').toLowerCase();
+      if (catA !== catB) {
+        return catA.localeCompare(catB);
+      }
+
+      // Finally by name
+      const nameA = a.name.toLowerCase();
+      const nameB = b.name.toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+  }
+
+  sortBy(column: string) {
+    // Toggle direction if same column, otherwise reset to asc
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    this.items.sort((a, b) => {
+      let valueA: string;
+      let valueB: string;
+
+      switch (column) {
+        case 'name':
+          valueA = a.name.toLowerCase();
+          valueB = b.name.toLowerCase();
+          break;
+        case 'category':
+          valueA = (a.kategorie_name || '').toLowerCase();
+          valueB = (b.kategorie_name || '').toLowerCase();
+          break;
+        case 'location':
+          valueA = (a.ort_path || a.ort_name || '').toLowerCase();
+          valueB = (b.ort_path || b.ort_name || '').toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      const comparison = valueA.localeCompare(valueB);
+      return this.sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) {
+      return '↕️';
+    }
+    return this.sortDirection === 'asc' ? '↑' : '↓';
   }
 
   // Calculate text color based on background luminance
@@ -901,5 +1296,98 @@ export class ItemListComponent implements OnInit {
 
     // Return white for dark backgrounds, black for light backgrounds
     return luminance > 0.5 ? '#000000' : '#ffffff';
+  }
+
+  // Bulk edit methods
+  toggleItemSelection(itemId: number) {
+    if (this.selectedItemIds.has(itemId)) {
+      this.selectedItemIds.delete(itemId);
+    } else {
+      this.selectedItemIds.add(itemId);
+    }
+  }
+
+  isItemSelected(itemId: number): boolean {
+    return this.selectedItemIds.has(itemId);
+  }
+
+  toggleSelectAll() {
+    if (this.selectedItemIds.size === this.items.length) {
+      this.selectedItemIds.clear();
+    } else {
+      this.items.forEach(item => {
+        if (item.id) this.selectedItemIds.add(item.id);
+      });
+    }
+  }
+
+  get allSelected(): boolean {
+    return this.items.length > 0 && this.selectedItemIds.size === this.items.length;
+  }
+
+  openBulkEdit() {
+    this.showBulkEdit = true;
+    this.bulkEditCategory = null;
+    this.bulkEditLocation = null;
+    this.bulkAddTags = [];
+    this.bulkRemoveTags = [];
+  }
+
+  closeBulkEdit() {
+    this.showBulkEdit = false;
+  }
+
+  applyBulkEdit() {
+    if (this.selectedItemIds.size === 0) return;
+
+    const updates: any = {};
+    if (this.bulkEditCategory !== null) {
+      updates.kategorie_id = this.bulkEditCategory;
+    }
+    if (this.bulkEditLocation !== null) {
+      updates.ort_id = this.bulkEditLocation;
+    }
+    if (this.bulkAddTags.length > 0) {
+      updates.add_tags = this.bulkAddTags;
+    }
+    if (this.bulkRemoveTags.length > 0) {
+      updates.remove_tags = this.bulkRemoveTags;
+    }
+
+    const itemIds = Array.from(this.selectedItemIds);
+
+    this.apiService.bulkUpdateItems(itemIds, updates).subscribe({
+      next: () => {
+        this.closeBulkEdit();
+        this.selectedItemIds.clear();
+        this.loadData();
+      },
+      error: (err) => {
+        console.error('Error bulk updating items:', err);
+        alert('Fehler beim Massenbearbeiten der Artikel');
+      }
+    });
+  }
+
+  toggleBulkAddTag(tagId: number) {
+    const index = this.bulkAddTags.indexOf(tagId);
+    if (index > -1) {
+      this.bulkAddTags.splice(index, 1);
+    } else {
+      this.bulkAddTags.push(tagId);
+    }
+  }
+
+  toggleBulkRemoveTag(tagId: number) {
+    const index = this.bulkRemoveTags.indexOf(tagId);
+    if (index > -1) {
+      this.bulkRemoveTags.splice(index, 1);
+    } else {
+      this.bulkRemoveTags.push(tagId);
+    }
+  }
+
+  clearSelection() {
+    this.selectedItemIds.clear();
   }
 }

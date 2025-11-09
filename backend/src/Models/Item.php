@@ -48,8 +48,15 @@ class Item
             foreach ($searchTerms as $index => $term) {
                 if (!empty($term)) {
                     $placeholder = ':search' . $index;
-                    $searchConditions[] = '(i.name LIKE ' . $placeholder . ' OR c.name LIKE ' . $placeholder .
-                                         ' OR l.name LIKE ' . $placeholder . ' OR l.path LIKE ' . $placeholder . ')';
+                    $searchConditions[] = '(i.name LIKE ' . $placeholder .
+                                         ' OR i.artikelnummer LIKE ' . $placeholder .
+                                         ' OR i.farbe LIKE ' . $placeholder .
+                                         ' OR i.hersteller LIKE ' . $placeholder .
+                                         ' OR i.haendler LIKE ' . $placeholder .
+                                         ' OR i.notizen LIKE ' . $placeholder .
+                                         ' OR c.name LIKE ' . $placeholder .
+                                         ' OR l.name LIKE ' . $placeholder .
+                                         ' OR l.path LIKE ' . $placeholder . ')';
                     $params[$placeholder] = '%' . $term . '%';
                 }
             }
@@ -167,23 +174,28 @@ class Item
     public function create($data)
     {
         $stmt = $this->db->prepare('
-            INSERT INTO items (name, kategorie_id, ort_id, menge, einheit, haendler, preis, link,
-                               datenblatt_type, datenblatt_value, bild, notizen)
-            VALUES (:name, :kategorie_id, :ort_id, :menge, :einheit, :haendler, :preis, :link,
-                    :datenblatt_type, :datenblatt_value, :bild, :notizen)
+            INSERT INTO items (name, artikelnummer, farbe, kategorie_id, ort_id, menge, einheit, hersteller, haendler, preis, link,
+                               datenblatt_type, datenblatt_value, weitere_datei_type, weitere_datei_value, bild, notizen)
+            VALUES (:name, :artikelnummer, :farbe, :kategorie_id, :ort_id, :menge, :einheit, :hersteller, :haendler, :preis, :link,
+                    :datenblatt_type, :datenblatt_value, :weitere_datei_type, :weitere_datei_value, :bild, :notizen)
         ');
 
         $result = $stmt->execute([
             ':name' => $data['name'] ?? null,
+            ':artikelnummer' => $data['artikelnummer'] ?? null,
+            ':farbe' => $data['farbe'] ?? null,
             ':kategorie_id' => $data['kategorie_id'] ?? null,
             ':ort_id' => $data['ort_id'] ?? null,
             ':menge' => $data['menge'] ?? null,
             ':einheit' => $data['einheit'] ?? null,
+            ':hersteller' => $data['hersteller'] ?? null,
             ':haendler' => $data['haendler'] ?? null,
             ':preis' => $data['preis'] ?? null,
             ':link' => $data['link'] ?? null,
             ':datenblatt_type' => $data['datenblatt_type'] ?? null,
             ':datenblatt_value' => $data['datenblatt_value'] ?? null,
+            ':weitere_datei_type' => $data['weitere_datei_type'] ?? null,
+            ':weitere_datei_value' => $data['weitere_datei_value'] ?? null,
             ':bild' => $data['bild'] ?? null,
             ':notizen' => $data['notizen'] ?? null
         ]);
@@ -206,9 +218,10 @@ class Item
     {
         $stmt = $this->db->prepare('
             UPDATE items
-            SET name = :name, kategorie_id = :kategorie_id, ort_id = :ort_id, menge = :menge,
-                einheit = :einheit, haendler = :haendler, preis = :preis, link = :link,
-                datenblatt_type = :datenblatt_type, datenblatt_value = :datenblatt_value,
+            SET name = :name, artikelnummer = :artikelnummer, farbe = :farbe, kategorie_id = :kategorie_id,
+                ort_id = :ort_id, menge = :menge, einheit = :einheit, hersteller = :hersteller, haendler = :haendler,
+                preis = :preis, link = :link, datenblatt_type = :datenblatt_type, datenblatt_value = :datenblatt_value,
+                weitere_datei_type = :weitere_datei_type, weitere_datei_value = :weitere_datei_value,
                 bild = :bild, notizen = :notizen, updated_at = CURRENT_TIMESTAMP
             WHERE id = :id
         ');
@@ -216,15 +229,20 @@ class Item
         $result = $stmt->execute([
             ':id' => $id,
             ':name' => $data['name'] ?? null,
+            ':artikelnummer' => $data['artikelnummer'] ?? null,
+            ':farbe' => $data['farbe'] ?? null,
             ':kategorie_id' => $data['kategorie_id'] ?? null,
             ':ort_id' => $data['ort_id'] ?? null,
             ':menge' => $data['menge'] ?? null,
             ':einheit' => $data['einheit'] ?? null,
+            ':hersteller' => $data['hersteller'] ?? null,
             ':haendler' => $data['haendler'] ?? null,
             ':preis' => $data['preis'] ?? null,
             ':link' => $data['link'] ?? null,
             ':datenblatt_type' => $data['datenblatt_type'] ?? null,
             ':datenblatt_value' => $data['datenblatt_value'] ?? null,
+            ':weitere_datei_type' => $data['weitere_datei_type'] ?? null,
+            ':weitere_datei_value' => $data['weitere_datei_value'] ?? null,
             ':bild' => $data['bild'] ?? null,
             ':notizen' => $data['notizen'] ?? null
         ]);
@@ -256,5 +274,60 @@ class Item
         ');
         $stmt->execute([':query' => $query . '%']);
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function bulkUpdate($itemIds, $updates)
+    {
+        try {
+            $this->db->beginTransaction();
+
+            foreach ($itemIds as $itemId) {
+                // Update category if provided
+                if (isset($updates['kategorie_id'])) {
+                    $stmt = $this->db->prepare('UPDATE items SET kategorie_id = :kategorie_id WHERE id = :id');
+                    $stmt->execute([
+                        ':kategorie_id' => $updates['kategorie_id'],
+                        ':id' => $itemId
+                    ]);
+                }
+
+                // Update location if provided
+                if (isset($updates['ort_id'])) {
+                    $stmt = $this->db->prepare('UPDATE items SET ort_id = :ort_id WHERE id = :id');
+                    $stmt->execute([
+                        ':ort_id' => $updates['ort_id'],
+                        ':id' => $itemId
+                    ]);
+                }
+
+                // Add tags if provided
+                if (isset($updates['add_tags']) && is_array($updates['add_tags'])) {
+                    foreach ($updates['add_tags'] as $tagId) {
+                        // Check if tag already exists for this item
+                        $checkStmt = $this->db->prepare('SELECT COUNT(*) FROM item_tags WHERE item_id = :item_id AND tag_id = :tag_id');
+                        $checkStmt->execute([':item_id' => $itemId, ':tag_id' => $tagId]);
+
+                        if ($checkStmt->fetchColumn() == 0) {
+                            $stmt = $this->db->prepare('INSERT INTO item_tags (item_id, tag_id) VALUES (:item_id, :tag_id)');
+                            $stmt->execute([':item_id' => $itemId, ':tag_id' => $tagId]);
+                        }
+                    }
+                }
+
+                // Remove tags if provided
+                if (isset($updates['remove_tags']) && is_array($updates['remove_tags'])) {
+                    foreach ($updates['remove_tags'] as $tagId) {
+                        $stmt = $this->db->prepare('DELETE FROM item_tags WHERE item_id = :item_id AND tag_id = :tag_id');
+                        $stmt->execute([':item_id' => $itemId, ':tag_id' => $tagId]);
+                    }
+                }
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
     }
 }

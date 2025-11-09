@@ -117,10 +117,21 @@ class ItemController
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
+            $thumbnailPath = $this->config['uploads']['thumbnails'] . $item['bild'];
+            if (file_exists($thumbnailPath)) {
+                unlink($thumbnailPath);
+            }
         }
 
         if ($item['datenblatt_type'] === 'file' && $item['datenblatt_value']) {
             $filePath = $this->config['uploads']['datasheets'] . $item['datenblatt_value'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+
+        if ($item['weitere_datei_type'] === 'file' && $item['weitere_datei_value']) {
+            $filePath = $this->config['uploads']['datasheets'] . $item['weitere_datei_value'];
             if (file_exists($filePath)) {
                 unlink($filePath);
             }
@@ -150,6 +161,36 @@ class ItemController
         $names = $this->itemModel->autocomplete($query);
         $response->getBody()->write(json_encode($names));
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function bulkUpdate(Request $request, Response $response)
+    {
+        $body = $request->getParsedBody();
+        $itemIds = $body['item_ids'] ?? [];
+        $updates = $body['updates'] ?? [];
+
+        if (empty($itemIds) || !is_array($itemIds)) {
+            $response->getBody()->write(json_encode(['error' => 'No item IDs provided']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        if (empty($updates)) {
+            $response->getBody()->write(json_encode(['error' => 'No updates provided']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        $result = $this->itemModel->bulkUpdate($itemIds, $updates);
+
+        if ($result) {
+            $response->getBody()->write(json_encode([
+                'message' => 'Items updated successfully',
+                'updated_count' => count($itemIds)
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $response->getBody()->write(json_encode(['error' => 'Failed to update items']));
+        return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
     }
 
 }

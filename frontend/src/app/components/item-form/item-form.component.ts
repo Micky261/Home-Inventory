@@ -9,7 +9,7 @@ import { ApiService } from '../../services/api.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="modal-overlay" (click)="onCancel()">
+    <div class="modal-overlay" (click)="$event.stopPropagation()">
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h2 *ngIf="!item" i18n="@@form.addItem">Neuen Artikel hinzufügen</h2>
@@ -32,6 +32,26 @@ import { ApiService } from '../../services/api.service';
               <datalist id="name-suggestions">
                 <option *ngFor="let suggestion of nameSuggestions" [value]="suggestion"></option>
               </datalist>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label i18n="@@form.articleNumber">Artikelnummer</label>
+                <input
+                  type="text"
+                  [(ngModel)]="formData.artikelnummer"
+                  name="artikelnummer"
+                />
+              </div>
+
+              <div class="form-group">
+                <label i18n="@@form.color">Farbe</label>
+                <input
+                  type="text"
+                  [(ngModel)]="formData.farbe"
+                  name="farbe"
+                />
+              </div>
             </div>
 
             <div class="form-row">
@@ -119,6 +139,15 @@ import { ApiService } from '../../services/api.service';
 
             <div class="form-row">
               <div class="form-group">
+                <label i18n="@@form.manufacturer">Hersteller</label>
+                <input
+                  type="text"
+                  [(ngModel)]="formData.hersteller"
+                  name="hersteller"
+                />
+              </div>
+
+              <div class="form-group">
                 <label i18n="@@form.retailer">Händler</label>
                 <input
                   type="text"
@@ -126,7 +155,9 @@ import { ApiService } from '../../services/api.service';
                   name="haendler"
                 />
               </div>
+            </div>
 
+            <div class="form-row">
               <div class="form-group">
                 <label i18n="@@form.price">Preis (€)</label>
                 <input
@@ -165,37 +196,87 @@ import { ApiService } from '../../services/api.service';
                 (blur)="onDatasheetUrlBlur()"
                 placeholder="https://example.com/document.pdf"
               />
-              <small *ngIf="downloadingDatasheet" class="downloading-hint">Datenblatt wird heruntergeladen...</small>
+              <small *ngIf="datasheetDownloadStatus" class="download-status-hint" [class.success]="!downloadingDatasheet && datasheetDownloadStatus">
+                {{ datasheetDownloadStatus }}
+              </small>
             </div>
 
             <div *ngIf="formData.datenblatt_type === 'file'" class="form-group">
               <label i18n="@@form.datasheetFile">Datenblatt-Datei</label>
-              <div class="file-upload" (click)="datasheetInput.click()">
+              <div class="file-upload" (click)="datasheetInput.click(); $event.stopPropagation()">
                 <span i18n="@@form.clickToUpload">Klicken zum Hochladen (PDF, DOC, DOCX)</span>
                 <input
                   #datasheetInput
                   type="file"
                   accept=".pdf,.doc,.docx"
                   (change)="onDatasheetUpload($event)"
+                  (cancel)="$event.stopPropagation()"
+                  (click)="$event.stopPropagation()"
                 />
                 <div *ngIf="formData.datenblatt_value" class="file-preview">
                   📄 {{ formData.datenblatt_value }}
+                  <button type="button" class="btn-delete-file" (click)="deleteDatasheet($event)" title="Datenblatt löschen">✖</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Weitere Datei</label>
+              <select [(ngModel)]="formData.weitere_datei_type" name="weitere_datei_type">
+                <option [value]="null">Keine</option>
+                <option value="url">URL</option>
+                <option value="file">Datei hochladen</option>
+              </select>
+            </div>
+
+            <div *ngIf="formData.weitere_datei_type === 'url'" class="form-group">
+              <label>Weitere Datei-URL (wird automatisch heruntergeladen)</label>
+              <input
+                type="url"
+                [(ngModel)]="formData.weitere_datei_value"
+                name="weitere_datei_value"
+                (blur)="onWeitereDateiUrlBlur()"
+                placeholder="https://example.com/document.pdf"
+              />
+              <small *ngIf="weitereDateiDownloadStatus" class="download-status-hint" [class.success]="!downloadingWeitereDatei && weitereDateiDownloadStatus">
+                {{ weitereDateiDownloadStatus }}
+              </small>
+            </div>
+
+            <div *ngIf="formData.weitere_datei_type === 'file'" class="form-group">
+              <label>Weitere Datei</label>
+              <div class="file-upload" (click)="weitereDateiInput.click(); $event.stopPropagation()">
+                <span>Klicken zum Hochladen (PDF, DOC, DOCX)</span>
+                <input
+                  #weitereDateiInput
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  (change)="onWeitereDateiUpload($event)"
+                  (cancel)="$event.stopPropagation()"
+                  (click)="$event.stopPropagation()"
+                />
+                <div *ngIf="formData.weitere_datei_value" class="file-preview">
+                  📄 {{ formData.weitere_datei_value }}
+                  <button type="button" class="btn-delete-file" (click)="deleteWeitereDatei($event)" title="Weitere Datei löschen">✖</button>
                 </div>
               </div>
             </div>
 
             <div class="form-group">
               <label i18n="@@form.image">Bild</label>
-              <div class="file-upload" (click)="imageInput.click()">
+              <div class="file-upload" (click)="imageInput.click(); $event.stopPropagation()">
                 <span i18n="@@form.clickToUploadImage">Klicken zum Hochladen (JPG, PNG, GIF, WebP)</span>
                 <input
                   #imageInput
                   type="file"
                   accept="image/*"
                   (change)="onImageUpload($event)"
+                  (cancel)="$event.stopPropagation()"
+                  (click)="$event.stopPropagation()"
                 />
                 <div *ngIf="formData.bild" class="file-preview">
                   <img [src]="getImageUrl(formData.bild)" alt="Vorschau" />
+                  <button type="button" class="btn-delete-file" (click)="deleteImage($event)" title="Bild löschen">✖</button>
                 </div>
               </div>
             </div>
@@ -291,6 +372,33 @@ import { ApiService } from '../../services/api.service';
       color: #3498db;
       font-style: italic;
     }
+
+    .btn-delete-file {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-delete-file:hover {
+      background: #c0392b;
+    }
+
+    .file-preview {
+      position: relative;
+    }
   `]
 })
 export class ItemFormComponent implements OnInit {
@@ -300,18 +408,26 @@ export class ItemFormComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   downloadingDatasheet = false;
+  datasheetDownloadStatus = '';
+  downloadingWeitereDatei = false;
+  weitereDateiDownloadStatus = '';
 
   formData: any = {
     name: '',
+    artikelnummer: '',
+    farbe: '',
     kategorie_id: null,
     ort_id: null,
     menge: null,
     einheit: '',
+    hersteller: '',
     haendler: '',
     preis: null,
     link: '',
     datenblatt_type: null,
     datenblatt_value: '',
+    weitere_datei_type: null,
+    weitere_datei_value: '',
     bild: '',
     notizen: '',
     tag_ids: []
@@ -329,7 +445,7 @@ export class ItemFormComponent implements OnInit {
     if (this.item) {
       this.formData = {
         ...this.item,
-        tag_ids: this.item.tags?.map(t => t.id) || []
+        tag_ids: this.item.tag_ids || this.item.tags?.map(t => t.id) || []
       };
     }
 
@@ -417,6 +533,21 @@ export class ItemFormComponent implements OnInit {
     }
   }
 
+  deleteImage(event: Event) {
+    event.stopPropagation();
+    if (confirm('Bild wirklich löschen?')) {
+      this.formData.bild = '';
+    }
+  }
+
+  deleteDatasheet(event: Event) {
+    event.stopPropagation();
+    if (confirm('Datenblatt wirklich löschen?')) {
+      this.formData.datenblatt_value = '';
+      this.formData.datenblatt_type = null;
+    }
+  }
+
   onDatasheetUrlBlur() {
     const url = this.formData.datenblatt_value?.trim();
 
@@ -431,6 +562,7 @@ export class ItemFormComponent implements OnInit {
     }
 
     this.downloadingDatasheet = true;
+    this.datasheetDownloadStatus = 'Datenblatt wird heruntergeladen...';
 
     this.apiService.downloadDatasheetFromUrl(url).subscribe({
       next: (response) => {
@@ -439,12 +571,70 @@ export class ItemFormComponent implements OnInit {
         // Change type to file since we now have a local file
         this.formData.datenblatt_type = 'file';
         this.downloadingDatasheet = false;
-        alert('Datenblatt erfolgreich heruntergeladen und gespeichert!');
+        this.datasheetDownloadStatus = '✓ Datenblatt erfolgreich heruntergeladen und gespeichert';
       },
       error: (err) => {
         console.error('Error downloading datasheet:', err);
         this.downloadingDatasheet = false;
-        alert('Fehler beim Herunterladen des Datenblatts. Bitte überprüfen Sie die URL.');
+        this.datasheetDownloadStatus = '✗ Fehler beim Herunterladen. Bitte URL überprüfen.';
+      }
+    });
+  }
+
+  onWeitereDateiUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.apiService.uploadDatasheet(file).subscribe({
+        next: (response) => {
+          this.formData.weitere_datei_value = response.filename;
+          this.formData.weitere_datei_type = 'file';
+        },
+        error: (err) => {
+          console.error('Error uploading file:', err);
+          alert('Fehler beim Hochladen der Datei');
+        }
+      });
+    }
+  }
+
+  deleteWeitereDatei(event: Event) {
+    event.stopPropagation();
+    if (confirm('Weitere Datei wirklich löschen?')) {
+      this.formData.weitere_datei_value = '';
+      this.formData.weitere_datei_type = null;
+    }
+  }
+
+  onWeitereDateiUrlBlur() {
+    const url = this.formData.weitere_datei_value?.trim();
+
+    // Only download if URL is valid and not empty
+    if (!url || !url.startsWith('http')) {
+      return;
+    }
+
+    // Don't download if it's already a filename (not a URL)
+    if (!url.includes('://')) {
+      return;
+    }
+
+    this.downloadingWeitereDatei = true;
+    this.weitereDateiDownloadStatus = 'Weitere Datei wird heruntergeladen...';
+
+    this.apiService.downloadDatasheetFromUrl(url).subscribe({
+      next: (response) => {
+        // Replace URL with downloaded filename
+        this.formData.weitere_datei_value = response.filename;
+        // Change type to file since we now have a local file
+        this.formData.weitere_datei_type = 'file';
+        this.downloadingWeitereDatei = false;
+        this.weitereDateiDownloadStatus = '✓ Weitere Datei erfolgreich heruntergeladen und gespeichert';
+      },
+      error: (err) => {
+        console.error('Error downloading file:', err);
+        this.downloadingWeitereDatei = false;
+        this.weitereDateiDownloadStatus = '✗ Fehler beim Herunterladen. Bitte URL überprüfen.';
       }
     });
   }

@@ -1,6 +1,8 @@
 export interface Item {
   id?: number;
   name: string;
+  artikelnummer?: string;
+  farbe?: string;
   kategorie_id?: number;
   kategorie_name?: string;
   ort_id?: number;
@@ -8,11 +10,14 @@ export interface Item {
   ort_path?: string;
   menge?: number;
   einheit?: string;
+  hersteller?: string;
   haendler?: string;
   preis?: number;
   link?: string;
   datenblatt_type?: 'file' | 'url';
   datenblatt_value?: string;
+  weitere_datei_type?: 'file' | 'url';
+  weitere_datei_value?: string;
   bild?: string;
   notizen?: string;
   tags?: Tag[];
