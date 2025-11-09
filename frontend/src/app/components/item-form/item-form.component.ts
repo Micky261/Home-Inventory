@@ -76,8 +76,15 @@ import { ApiService } from '../../services/api.service';
 
             <div class="form-group">
               <label i18n="@@form.tags">Tags</label>
+              <input
+                type="text"
+                [(ngModel)]="tagSearchQuery"
+                name="tagSearchQuery"
+                placeholder="Tags filtern..."
+                class="tag-search"
+              />
               <div class="tags-selector">
-                <div *ngFor="let tag of tags" class="tag-checkbox">
+                <div *ngFor="let tag of getFilteredTags()" class="tag-checkbox">
                   <label>
                     <input
                       type="checkbox"
@@ -88,6 +95,9 @@ import { ApiService } from '../../services/api.service';
                       {{ tag.name }}
                     </span>
                   </label>
+                </div>
+                <div *ngIf="getFilteredTags().length === 0 && tags.length > 0" class="no-tags">
+                  Keine Tags gefunden.
                 </div>
                 <div *ngIf="tags.length === 0" class="no-tags" i18n="@@form.noTags">
                   Keine Tags vorhanden. Erstellen Sie Tags in den Einstellungen.
@@ -304,6 +314,14 @@ import { ApiService } from '../../services/api.service';
     </div>
   `,
   styles: [`
+    .tag-search {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
     .tags-selector {
       display: flex;
       flex-wrap: wrap;
@@ -312,6 +330,8 @@ import { ApiService } from '../../services/api.service';
       border: 1px solid #ddd;
       border-radius: 4px;
       min-height: 50px;
+      max-height: 200px;
+      overflow-y: auto;
     }
 
     .tag-checkbox label {
@@ -436,6 +456,7 @@ export class ItemFormComponent implements OnInit {
   nameSuggestions: string[] = [];
   categories: Category[] = [];
   tags: Tag[] = [];
+  tagSearchQuery = '';
   newTagName = '';
   newTagColor = '#3498db';
 
@@ -481,6 +502,14 @@ export class ItemFormComponent implements OnInit {
     } else {
       this.formData.tag_ids.push(tagId);
     }
+  }
+
+  getFilteredTags(): Tag[] {
+    if (!this.tagSearchQuery.trim()) {
+      return this.tags;
+    }
+    const query = this.tagSearchQuery.toLowerCase();
+    return this.tags.filter(tag => tag.name.toLowerCase().includes(query));
   }
 
   createNewTag() {
