@@ -46,6 +46,9 @@ class UploadController
 
         $uploadedFile->moveTo($targetPath);
 
+        // Generate thumbnail
+        $this->generateThumbnail($targetPath, $filename);
+
         $response->getBody()->write(json_encode(['filename' => $filename]));
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -175,6 +178,103 @@ class UploadController
             $response->getBody()->write(json_encode(['error' => 'Error downloading file: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
+    }
+
+    private function generateThumbnail($sourcePath, $filename)
+    {
+        // Check if GD extension is available
+        if (!extension_loaded('gd')) {
+            // Fallback: copy original image as thumbnail
+            $thumbnailPath = $this->config['uploads']['thumbnails'] . $filename;
+            copy($sourcePath, $thumbnailPath);
+            return true;
+        }
+
+        $thumbnailPath = $this->config['uploads']['thumbnails'] . $filename;
+        $maxWidth = $this->config['uploads']['thumbnail_width'];
+        $maxHeight = $this->config['uploads']['thumbnail_height'];
+
+        // Get image info
+        $imageInfo = @getimagesize($sourcePath);
+        if (!$imageInfo) {
+            // Fallback: copy original
+            copy($sourcePath, $thumbnailPath);
+            return false;
+        }
+
+        list($width, $height, $type) = $imageInfo;
+
+        // Create image resource from source
+        try {
+            switch ($type) {
+                case IMAGETYPE_JPEG:
+                    $sourceImage = @imagecreatefromjpeg($sourcePath);
+                    break;
+                case IMAGETYPE_PNG:
+                    $sourceImage = @imagecreatefrompng($sourcePath);
+                    break;
+                case IMAGETYPE_GIF:
+                    $sourceImage = @imagecreatefromgif($sourcePath);
+                    break;
+                case IMAGETYPE_WEBP:
+                    $sourceImage = @imagecreatefromwebp($sourcePath);
+                    break;
+                default:
+                    copy($sourcePath, $thumbnailPath);
+                    return false;
+            }
+
+            if ($sourceImage === false) {
+                // Fallback: copy original
+                copy($sourcePath, $thumbnailPath);
+                return false;
+            }
+        } catch (\Exception $e) {
+            // Fallback: copy original
+            copy($sourcePath, $thumbnailPath);
+            return false;
+        }
+
+        // Calculate new dimensions (maintain aspect ratio)
+        $ratio = min($maxWidth / $width, $maxHeight / $height);
+        $newWidth = round($width * $ratio);
+        $newHeight = round($height * $ratio);
+
+        // Create thumbnail
+        $thumbnail = imagecreatetruecolor($newWidth, $newHeight);
+
+        // Preserve transparency for PNG and GIF
+        if ($type == IMAGETYPE_PNG || $type == IMAGETYPE_GIF) {
+            imagealphablending($thumbnail, false);
+            imagesavealpha($thumbnail, true);
+            $transparent = imagecolorallocatealpha($thumbnail, 255, 255, 255, 127);
+            imagefilledrectangle($thumbnail, 0, 0, $newWidth, $newHeight, $transparent);
+        }
+
+        // Resize
+        imagecopyresampled($thumbnail, $sourceImage, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        // Save thumbnail
+        switch ($type) {
+            case IMAGETYPE_JPEG:
+                imagejpeg($thumbnail, $thumbnailPath, 85);
+                break;
+            case IMAGETYPE_PNG:
+                imagepng($thumbnail, $thumbnailPath, 8);
+                break;
+            case IMAGETYPE_GIF:
+                imagegif($thumbnail, $thumbnailPath);
+                break;
+            case IMAGETYPE_WEBP:
+                imagewebp($thumbnail, $thumbnailPath, 85);
+                break;
+        }
+
+        // Free memory
+        imagedestroy($sourceImage);
+        imagedestroy($thumbnail);
+
+        return true;
     }
 
     private function generateUniqueFilename($originalFilename)
