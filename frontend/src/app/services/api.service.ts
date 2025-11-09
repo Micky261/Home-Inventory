@@ -105,6 +105,15 @@ export class ApiService {
     });
   }
 
+  bulkUpdateItems(itemIds: number[], updates: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/items/bulk-update`, {
+      item_ids: itemIds,
+      updates: updates
+    }, {
+      headers: this.getHeaders()
+    });
+  }
+
   // Categories
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories`, {
@@ -231,6 +240,10 @@ export class ApiService {
 
   getImageUrl(filename: string): string {
     return `${this.uploadUrl}/uploads/images/${filename}`;
+  }
+
+  getThumbnailUrl(filename: string): string {
+    return `${this.uploadUrl}/uploads/thumbnails/${filename}`;
   }
 
   getDatasheetUrl(filename: string): string {

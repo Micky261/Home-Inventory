@@ -53,6 +53,7 @@ $app->group('/api', function ($group) use ($itemController, $locationController,
     $group->post('/items', [$itemController, 'create']);
     $group->put('/items/{id}', [$itemController, 'update']);
     $group->delete('/items/{id}', [$itemController, 'delete']);
+    $group->post('/items/bulk-update', [$itemController, 'bulkUpdate']);
     $group->get('/items/autocomplete/names', [$itemController, 'autocomplete']);
 
     // Locations
@@ -88,6 +89,8 @@ $app->get('/uploads/{type}/{filename}', function ($request, $response, $args) us
 
     if ($type === 'images') {
         $filePath = $config['uploads']['images'] . $filename;
+    } elseif ($type === 'thumbnails') {
+        $filePath = $config['uploads']['thumbnails'] . $filename;
     } elseif ($type === 'datasheets') {
         $filePath = $config['uploads']['datasheets'] . $filename;
     } else {
