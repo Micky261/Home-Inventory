@@ -398,7 +398,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
               </div>
               <div *ngIf="item.preis" class="info-row">
                 <span class="label" i18n="@@items.price">Preis</span>
-                <span>{{ item.preis }} €</span>
+                <span>{{ item.preis | number:'1.2-2' }} €</span>
               </div>
               <div *ngIf="item.tags && item.tags.length > 0" class="card-tags">
                 <span

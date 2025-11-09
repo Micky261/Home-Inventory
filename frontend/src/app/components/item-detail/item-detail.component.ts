@@ -53,7 +53,7 @@ import { ApiService } from '../../services/api.service';
 
             <div class="info-item" *ngIf="item.preis">
               <label i18n="@@items.price">Preis</label>
-              <span>{{ item.preis }} €</span>
+              <span>{{ item.preis | number:'1.2-2' }} €</span>
             </div>
 
             <div class="info-item" *ngIf="item.hersteller">
