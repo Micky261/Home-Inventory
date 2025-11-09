@@ -164,7 +164,16 @@ import { Category, Location, Tag } from '../../models/item.model';
 
         <!-- Tags Section -->
         <div class="settings-card">
-          <h2 i18n="@@settings.tags">Tags</h2>
+          <div class="section-header">
+            <h2 i18n="@@settings.tags">Tags</h2>
+            <button
+              class="btn btn-secondary btn-sm"
+              (click)="groupTagsByColor = !groupTagsByColor"
+              [title]="groupTagsByColor ? 'Liste anzeigen' : 'Nach Farbe gruppieren'"
+            >
+              {{ groupTagsByColor ? '📋 Liste' : '🎨 Nach Farbe' }}
+            </button>
+          </div>
 
           <div class="add-form">
             <input
@@ -211,7 +220,8 @@ import { Category, Location, Tag } from '../../models/item.model';
             </div>
           </div>
 
-          <div class="items-list">
+          <!-- Ungrouped List View -->
+          <div *ngIf="!groupTagsByColor" class="items-list">
             <div *ngFor="let tag of tags" class="item-row">
               <span *ngIf="editingTag !== tag.id" class="tag-badge"
                     [style.background-color]="tag.color"
@@ -279,6 +289,85 @@ import { Category, Location, Tag } from '../../models/item.model';
               Keine Tags vorhanden
             </div>
           </div>
+
+          <!-- Grouped by Color View -->
+          <div *ngIf="groupTagsByColor" class="items-list">
+            <div *ngFor="let group of getGroupedTags()" class="color-group">
+              <div class="color-group-header">
+                <div class="color-indicator" [style.background-color]="group.color"></div>
+                <span class="color-label">{{ group.color }}</span>
+                <span class="tag-count">({{ group.tags.length }})</span>
+              </div>
+              <div class="color-group-items">
+                <div *ngFor="let tag of group.tags" class="item-row">
+                  <span *ngIf="editingTag !== tag.id" class="tag-badge"
+                        [style.background-color]="tag.color"
+                        [style.color]="getTextColor(tag.color)">
+                    {{ tag.name }}
+                  </span>
+                  <div *ngIf="editingTag === tag.id" class="edit-tag">
+                    <input
+                      type="text"
+                      [(ngModel)]="editTagName"
+                      (keyup.enter)="saveTag(tag.id)"
+                      (keyup.escape)="cancelEdit()"
+                    />
+                    <div class="color-preview-small" [style.background-color]="editTagColor"></div>
+
+                    <!-- Color palette for edit mode -->
+                    <div class="edit-color-palette">
+                      <div class="color-grid-compact">
+                        <button
+                          *ngFor="let color of allColors"
+                          class="color-swatch-small"
+                          [style.background-color]="color"
+                          [class.selected]="editTagColor === color"
+                          (click)="selectEditColor(color)"
+                          [title]="color"
+                        ></button>
+                      </div>
+                      <input
+                        type="color"
+                        [(ngModel)]="editTagColor"
+                        class="color-picker-inline"
+                      />
+                    </div>
+                  </div>
+                  <div class="item-actions">
+                    <button
+                      *ngIf="editingTag !== tag.id"
+                      class="icon-btn"
+                      (click)="startEditTag(tag)"
+                      title="Bearbeiten"
+                      i18n-title="@@settings.edit"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      *ngIf="editingTag === tag.id"
+                      class="icon-btn"
+                      (click)="saveTag(tag.id)"
+                      title="Speichern"
+                      i18n-title="@@settings.save"
+                    >
+                      ✓
+                    </button>
+                    <button
+                      class="icon-btn"
+                      (click)="deleteTag(tag.id)"
+                      title="Löschen"
+                      i18n-title="@@settings.delete"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="tags.length === 0" class="empty-state" i18n="@@settings.noTags">
+              Keine Tags vorhanden
+            </div>
+          </div>
         </div>
       </div>
 
@@ -303,11 +392,25 @@ import { Category, Location, Tag } from '../../models/item.model';
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .settings-card h2 {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
+    }
+
+    .settings-card h2 {
+      margin-bottom: 0;
       color: #2c3e50;
       border-bottom: 2px solid #3498db;
       padding-bottom: 10px;
+      flex: 1;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+      white-space: nowrap;
     }
 
     .add-form {
@@ -416,6 +519,45 @@ import { Category, Location, Tag } from '../../models/item.model';
       border-radius: 12px;
       font-size: 14px;
       font-weight: 500;
+    }
+
+    .color-group {
+      margin-bottom: 20px;
+    }
+
+    .color-group-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-left: 4px solid #3498db;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .color-indicator {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 2px solid #ddd;
+      flex-shrink: 0;
+    }
+
+    .color-label {
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    .tag-count {
+      color: #95a5a6;
+      font-weight: 400;
+      font-size: 13px;
+    }
+
+    .color-group-items {
+      margin-left: 8px;
     }
 
     .empty-state {
@@ -637,6 +779,8 @@ export class SettingsComponent implements OnInit {
   editingTag: number | null = null;
   editTagName = '';
   editTagColor = '';
+
+  groupTagsByColor = false;
 
   constructor(
     private apiService: ApiService,
@@ -861,6 +1005,25 @@ export class SettingsComponent implements OnInit {
     setTimeout(() => {
       this.toastVisible = false;
     }, 3000);
+  }
+
+  // Group tags by color
+  getGroupedTags(): { color: string; tags: Tag[] }[] {
+    const groups = new Map<string, Tag[]>();
+
+    // Group tags by color
+    this.tags.forEach(tag => {
+      const color = tag.color.toLowerCase();
+      if (!groups.has(color)) {
+        groups.set(color, []);
+      }
+      groups.get(color)!.push(tag);
+    });
+
+    // Convert to array and sort by color
+    return Array.from(groups.entries())
+      .map(([color, tags]) => ({ color, tags }))
+      .sort((a, b) => a.color.localeCompare(b.color));
   }
 
   // Calculate text color based on background luminance
