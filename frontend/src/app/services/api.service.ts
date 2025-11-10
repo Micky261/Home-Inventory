@@ -114,6 +114,12 @@ export class ApiService {
     });
   }
 
+  getStatistics(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/items/statistics`, {
+      headers: this.getHeaders()
+    });
+  }
+
   // Categories
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories`, {

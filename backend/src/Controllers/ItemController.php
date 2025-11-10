@@ -193,4 +193,11 @@ class ItemController
         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
     }
 
+    public function statistics(Request $request, Response $response)
+    {
+        $stats = $this->itemModel->getStatistics();
+        $response->getBody()->write(json_encode($stats));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
 }

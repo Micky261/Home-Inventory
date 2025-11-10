@@ -22,6 +22,82 @@ import { Category, Location, Tag } from '../../models/item.model';
     </div>
 
     <div class="container">
+      <!-- Statistics Section -->
+      <div class="statistics-section">
+        <h2 i18n="@@settings.statistics">Statistiken</h2>
+
+        <div *ngIf="loadingStatistics" class="loading">
+          Lade Statistiken...
+        </div>
+
+        <div *ngIf="!loadingStatistics && statistics" class="stats-grid">
+          <!-- Overview Stats -->
+          <div class="stat-card highlight">
+            <div class="stat-value">{{ statistics.total_items }}</div>
+            <div class="stat-label" i18n="@@stats.totalItems">Artikel gesamt</div>
+          </div>
+
+          <div class="stat-card highlight">
+            <div class="stat-value">{{ statistics.total_value | number:'1.2-2' }} €</div>
+            <div class="stat-label" i18n="@@stats.totalValue">Gesamtwert</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value">{{ statistics.items_without_image }}</div>
+            <div class="stat-label" i18n="@@stats.withoutImage">Ohne Bild</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value">{{ statistics.items_without_price }}</div>
+            <div class="stat-label" i18n="@@stats.withoutPrice">Ohne Preis</div>
+          </div>
+
+          <!-- Top Categories -->
+          <div class="stat-list-card">
+            <h3 i18n="@@stats.topCategories">Top Kategorien</h3>
+            <div class="stat-list">
+              <div *ngFor="let cat of statistics.top_categories" class="stat-list-item">
+                <span class="stat-list-name">{{ cat.name || 'Keine Kategorie' }}</span>
+                <span class="stat-list-count">{{ cat.count }}</span>
+              </div>
+              <div *ngIf="statistics.top_categories.length === 0" class="stat-empty">
+                Keine Daten
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Locations -->
+          <div class="stat-list-card">
+            <h3 i18n="@@stats.topLocations">Top Orte</h3>
+            <div class="stat-list">
+              <div *ngFor="let loc of statistics.top_locations" class="stat-list-item">
+                <span class="stat-list-name">{{ loc.path || loc.name || 'Kein Ort' }}</span>
+                <span class="stat-list-count">{{ loc.count }}</span>
+              </div>
+              <div *ngIf="statistics.top_locations.length === 0" class="stat-empty">
+                Keine Daten
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Tags -->
+          <div class="stat-list-card full-width">
+            <h3 i18n="@@stats.topTags">Top Tags</h3>
+            <div class="stat-list">
+              <div *ngFor="let tag of statistics.top_tags" class="stat-list-item">
+                <span class="tag-badge" [style.background-color]="tag.color" [style.color]="getTextColor(tag.color)">
+                  {{ tag.name }}
+                </span>
+                <span class="stat-list-count">{{ tag.count }}</span>
+              </div>
+              <div *ngIf="statistics.top_tags.length === 0" class="stat-empty">
+                Keine Daten
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="settings-grid">
         <!-- Categories Section -->
         <div class="settings-card">
@@ -378,6 +454,120 @@ import { Category, Location, Tag } from '../../models/item.model';
     </div>
   `,
   styles: [`
+    .statistics-section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .statistics-section h2 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      border: 2px solid #e0e0e0;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-card.highlight {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-list-card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      border: 2px solid #e0e0e0;
+    }
+
+    .stat-list-card.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .stat-list-card h3 {
+      margin: 0 0 15px 0;
+      color: #2c3e50;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .stat-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .stat-list-item:hover {
+      background: #e8f4f8;
+    }
+
+    .stat-list-name {
+      flex: 1;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+
+    .stat-list-count {
+      font-weight: 700;
+      color: #3498db;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+
+    .stat-empty {
+      text-align: center;
+      padding: 20px;
+      color: #95a5a6;
+      font-style: italic;
+    }
+
     .settings-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -782,6 +972,10 @@ export class SettingsComponent implements OnInit {
 
   groupTagsByColor = false;
 
+  // Statistics
+  statistics: any = null;
+  loadingStatistics = true;
+
   constructor(
     private apiService: ApiService,
     private router: Router
@@ -789,6 +983,7 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.loadStatistics();
   }
 
   loadData() {
@@ -974,6 +1169,20 @@ export class SettingsComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/items']);
+  }
+
+  loadStatistics() {
+    this.loadingStatistics = true;
+    this.apiService.getStatistics().subscribe({
+      next: (stats) => {
+        this.statistics = stats;
+        this.loadingStatistics = false;
+      },
+      error: (err) => {
+        console.error('Error loading statistics:', err);
+        this.loadingStatistics = false;
+      }
+    });
   }
 
   // Get custom colors that are already used but not in predefined palette

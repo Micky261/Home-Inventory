@@ -330,4 +330,60 @@ class Item
             return false;
         }
     }
+
+    public function getStatistics()
+    {
+        $stats = [];
+
+        // Total count
+        $stmt = $this->db->query('SELECT COUNT(*) as total FROM items');
+        $stats['total_items'] = (int) $stmt->fetchColumn();
+
+        // Total value
+        $stmt = $this->db->query('SELECT SUM(preis) as total_value FROM items WHERE preis IS NOT NULL');
+        $stats['total_value'] = (float) $stmt->fetchColumn();
+
+        // Items without image
+        $stmt = $this->db->query('SELECT COUNT(*) as count FROM items WHERE bild IS NULL OR bild = ""');
+        $stats['items_without_image'] = (int) $stmt->fetchColumn();
+
+        // Items without price
+        $stmt = $this->db->query('SELECT COUNT(*) as count FROM items WHERE preis IS NULL');
+        $stats['items_without_price'] = (int) $stmt->fetchColumn();
+
+        // Top categories
+        $stmt = $this->db->query('
+            SELECT c.name, COUNT(i.id) as count
+            FROM categories c
+            LEFT JOIN items i ON i.kategorie_id = c.id
+            GROUP BY c.id, c.name
+            ORDER BY count DESC
+            LIMIT 5
+        ');
+        $stats['top_categories'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Top locations
+        $stmt = $this->db->query('
+            SELECT l.name, l.path, COUNT(i.id) as count
+            FROM locations l
+            LEFT JOIN items i ON i.ort_id = l.id
+            GROUP BY l.id, l.name, l.path
+            ORDER BY count DESC
+            LIMIT 5
+        ');
+        $stats['top_locations'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Top tags
+        $stmt = $this->db->query('
+            SELECT t.name, t.color, COUNT(it.item_id) as count
+            FROM tags t
+            LEFT JOIN item_tags it ON it.tag_id = t.id
+            GROUP BY t.id, t.name, t.color
+            ORDER BY count DESC
+            LIMIT 10
+        ');
+        $stats['top_tags'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        return $stats;
+    }
 }

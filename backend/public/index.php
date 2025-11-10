@@ -49,6 +49,7 @@ $app->post('/api/auth/login', [$authController, 'login']);
 $app->group('/api', function ($group) use ($itemController, $locationController, $categoryController, $tagController, $uploadController) {
     // Items
     $group->get('/items', [$itemController, 'index']);
+    $group->get('/items/statistics', [$itemController, 'statistics']);
     $group->get('/items/{id}', [$itemController, 'show']);
     $group->post('/items', [$itemController, 'create']);
     $group->put('/items/{id}', [$itemController, 'update']);
