@@ -274,20 +274,30 @@ import { ApiService } from '../../services/api.service';
 
             <div class="form-group">
               <label i18n="@@form.image">Bild</label>
-              <div class="file-upload" (click)="imageInput.click(); $event.stopPropagation()">
-                <span i18n="@@form.clickToUploadImage">Klicken zum Hochladen (JPG, PNG, GIF, WebP)</span>
-                <input
-                  #imageInput
-                  type="file"
-                  accept="image/*"
-                  (change)="onImageUpload($event)"
-                  (cancel)="$event.stopPropagation()"
-                  (click)="$event.stopPropagation()"
-                />
-                <div *ngIf="formData.bild" class="file-preview">
-                  <img [src]="getImageUrl(formData.bild)" alt="Vorschau" />
-                  <button type="button" class="btn-delete-file" (click)="deleteImage($event)" title="Bild löschen">✖</button>
+              <div class="image-upload-container">
+                <div class="file-upload" (click)="imageInput.click(); $event.stopPropagation()">
+                  <span i18n="@@form.clickToUploadImage">Klicken zum Hochladen (JPG, PNG, GIF, WebP)</span>
+                  <input
+                    #imageInput
+                    type="file"
+                    accept="image/*"
+                    (change)="onImageUpload($event)"
+                    (cancel)="$event.stopPropagation()"
+                    (click)="$event.stopPropagation()"
+                  />
+                  <div *ngIf="formData.bild" class="file-preview">
+                    <img [src]="getImageUrl(formData.bild)" alt="Vorschau" />
+                    <button type="button" class="btn-delete-file" (click)="deleteImage($event)" title="Bild löschen">✖</button>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  class="btn btn-secondary camera-btn"
+                  (click)="openCamera($event)"
+                  title="Foto aufnehmen"
+                >
+                  📷 Foto aufnehmen
+                </button>
               </div>
             </div>
 
@@ -308,6 +318,28 @@ import { ApiService } from '../../services/api.service';
           </button>
           <button type="button" class="btn btn-success" (click)="onSubmit()" i18n="@@form.save">
             Speichern
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div *ngIf="showCamera" class="camera-overlay" (click)="closeCamera()">
+      <div class="camera-container" (click)="$event.stopPropagation()">
+        <div class="camera-header">
+          <h3>Foto aufnehmen</h3>
+          <button class="icon-btn close-btn" (click)="closeCamera()">✖</button>
+        </div>
+        <div class="camera-body">
+          <video id="camera-video" autoplay playsinline></video>
+          <canvas id="camera-canvas" style="display: none;"></canvas>
+        </div>
+        <div class="camera-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCamera()">
+            Abbrechen
+          </button>
+          <button type="button" class="btn btn-primary capture-btn" (click)="capturePhoto($event)">
+            📷 Foto machen
           </button>
         </div>
       </div>
@@ -419,6 +451,92 @@ import { ApiService } from '../../services/api.service';
     .file-preview {
       position: relative;
     }
+
+    .image-upload-container {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .image-upload-container .file-upload {
+      flex: 1;
+    }
+
+    .camera-btn {
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Camera Modal */
+    .camera-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .camera-container {
+      background: white;
+      border-radius: 8px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .camera-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .camera-header h3 {
+      margin: 0;
+      color: #2c3e50;
+    }
+
+    .close-btn {
+      font-size: 24px;
+      padding: 5px;
+    }
+
+    .camera-body {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .camera-body video {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 4px;
+    }
+
+    .camera-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .capture-btn {
+      font-size: 16px;
+      font-weight: 600;
+    }
   `]
 })
 export class ItemFormComponent implements OnInit {
@@ -431,6 +549,10 @@ export class ItemFormComponent implements OnInit {
   datasheetDownloadStatus = '';
   downloadingWeitereDatei = false;
   weitereDateiDownloadStatus = '';
+
+  // Camera
+  showCamera = false;
+  videoStream: MediaStream | null = null;
 
   formData: any = {
     name: '',
@@ -567,6 +689,76 @@ export class ItemFormComponent implements OnInit {
     if (confirm('Bild wirklich löschen?')) {
       this.formData.bild = '';
     }
+  }
+
+  async openCamera(event: Event) {
+    event.stopPropagation();
+
+    try {
+      this.videoStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' } // Use back camera on mobile
+      });
+      this.showCamera = true;
+
+      // Wait for view to update, then set video source
+      setTimeout(() => {
+        const video = document.getElementById('camera-video') as HTMLVideoElement;
+        if (video && this.videoStream) {
+          video.srcObject = this.videoStream;
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      alert('Kamera konnte nicht geöffnet werden. Bitte Berechtigungen prüfen.');
+    }
+  }
+
+  capturePhoto(event: Event) {
+    event.stopPropagation();
+
+    const video = document.getElementById('camera-video') as HTMLVideoElement;
+    const canvas = document.getElementById('camera-canvas') as HTMLCanvasElement;
+
+    if (!video || !canvas) return;
+
+    // Set canvas size to video size
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw video frame to canvas
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert canvas to blob and upload
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' });
+          this.uploadImage(file);
+          this.closeCamera();
+        }
+      }, 'image/jpeg', 0.9);
+    }
+  }
+
+  closeCamera() {
+    if (this.videoStream) {
+      this.videoStream.getTracks().forEach(track => track.stop());
+      this.videoStream = null;
+    }
+    this.showCamera = false;
+  }
+
+  private uploadImage(file: File) {
+    this.apiService.uploadImage(file).subscribe({
+      next: (response) => {
+        this.formData.bild = response.filename;
+      },
+      error: (err) => {
+        console.error('Error uploading image:', err);
+        alert('Fehler beim Hochladen des Bildes');
+      }
+    });
   }
 
   deleteDatasheet(event: Event) {
