@@ -22,82 +22,6 @@ import { Category, Location, Tag } from '../../models/item.model';
     </div>
 
     <div class="container">
-      <!-- Statistics Section -->
-      <div class="statistics-section">
-        <h2 i18n="@@settings.statistics">Statistiken</h2>
-
-        <div *ngIf="loadingStatistics" class="loading">
-          Lade Statistiken...
-        </div>
-
-        <div *ngIf="!loadingStatistics && statistics" class="stats-grid">
-          <!-- Overview Stats -->
-          <div class="stat-card highlight">
-            <div class="stat-value">{{ statistics.total_items }}</div>
-            <div class="stat-label" i18n="@@stats.totalItems">Artikel gesamt</div>
-          </div>
-
-          <div class="stat-card highlight">
-            <div class="stat-value">{{ statistics.total_value | number:'1.2-2' }} €</div>
-            <div class="stat-label" i18n="@@stats.totalValue">Gesamtwert</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-value">{{ statistics.items_without_image }}</div>
-            <div class="stat-label" i18n="@@stats.withoutImage">Ohne Bild</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-value">{{ statistics.items_without_price }}</div>
-            <div class="stat-label" i18n="@@stats.withoutPrice">Ohne Preis</div>
-          </div>
-
-          <!-- Top Categories -->
-          <div class="stat-list-card">
-            <h3 i18n="@@stats.topCategories">Top Kategorien</h3>
-            <div class="stat-list">
-              <div *ngFor="let cat of statistics.top_categories" class="stat-list-item">
-                <span class="stat-list-name">{{ cat.name || 'Keine Kategorie' }}</span>
-                <span class="stat-list-count">{{ cat.count }}</span>
-              </div>
-              <div *ngIf="statistics.top_categories.length === 0" class="stat-empty">
-                Keine Daten
-              </div>
-            </div>
-          </div>
-
-          <!-- Top Locations -->
-          <div class="stat-list-card">
-            <h3 i18n="@@stats.topLocations">Top Orte</h3>
-            <div class="stat-list">
-              <div *ngFor="let loc of statistics.top_locations" class="stat-list-item">
-                <span class="stat-list-name">{{ loc.path || loc.name || 'Kein Ort' }}</span>
-                <span class="stat-list-count">{{ loc.count }}</span>
-              </div>
-              <div *ngIf="statistics.top_locations.length === 0" class="stat-empty">
-                Keine Daten
-              </div>
-            </div>
-          </div>
-
-          <!-- Top Tags -->
-          <div class="stat-list-card full-width">
-            <h3 i18n="@@stats.topTags">Top Tags</h3>
-            <div class="stat-list">
-              <div *ngFor="let tag of statistics.top_tags" class="stat-list-item">
-                <span class="tag-badge" [style.background-color]="tag.color" [style.color]="getTextColor(tag.color)">
-                  {{ tag.name }}
-                </span>
-                <span class="stat-list-count">{{ tag.count }}</span>
-              </div>
-              <div *ngIf="statistics.top_tags.length === 0" class="stat-empty">
-                Keine Daten
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="settings-grid">
         <!-- Categories Section -->
         <div class="settings-card">
@@ -447,6 +371,73 @@ import { Category, Location, Tag } from '../../models/item.model';
         </div>
       </div>
 
+      <!-- Statistics Section -->
+      <div class="statistics-section">
+        <h2 i18n="@@settings.statistics">Statistiken</h2>
+
+        <div *ngIf="loadingStatistics" class="loading">
+          Lade Statistiken...
+        </div>
+
+        <div *ngIf="!loadingStatistics && statistics" class="stats-grid">
+          <!-- Overview Stats -->
+          <div class="stat-card highlight">
+            <div class="stat-value">{{ statistics.total_items }}</div>
+            <div class="stat-label" i18n="@@stats.totalItems">Artikel</div>
+          </div>
+
+          <div class="stat-card highlight">
+            <div class="stat-value">{{ statistics.total_value | number:'1.2-2' }} €</div>
+            <div class="stat-label" i18n="@@stats.totalValue">Gesamtwert</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value">{{ statistics.items_without_image }}</div>
+            <div class="stat-label" i18n="@@stats.withoutImage">Ohne Bild</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value">{{ statistics.items_without_price }}</div>
+            <div class="stat-label" i18n="@@stats.withoutPrice">Ohne Preis</div>
+          </div>
+
+          <!-- Top Categories -->
+          <div class="stat-list-card">
+            <h3 i18n="@@stats.topCategories">Top Kategorien</h3>
+            <div class="stat-list">
+              <div *ngFor="let cat of statistics.top_categories" class="stat-list-item">
+                <span class="stat-list-name">{{ cat.name || 'Keine Kategorie' }}</span>
+                <span class="stat-list-count">{{ cat.count }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Locations -->
+          <div class="stat-list-card">
+            <h3 i18n="@@stats.topLocations">Top Orte</h3>
+            <div class="stat-list">
+              <div *ngFor="let loc of statistics.top_locations" class="stat-list-item">
+                <span class="stat-list-name">{{ loc.path || loc.name || 'Kein Ort' }}</span>
+                <span class="stat-list-count">{{ loc.count }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Tags -->
+          <div class="stat-list-card">
+            <h3 i18n="@@stats.topTags">Top Tags</h3>
+            <div class="stat-list">
+              <div *ngFor="let tag of statistics.top_tags" class="stat-list-item">
+                <span class="tag-badge" [style.background-color]="tag.color" [style.color]="getTextColor(tag.color)">
+                  {{ tag.name }}
+                </span>
+                <span class="stat-list-count">{{ tag.count }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Toast Notification -->
       <div class="toast" [class.show]="toastVisible">
         {{ toastMessage }}
@@ -457,36 +448,37 @@ import { Category, Location, Tag } from '../../models/item.model';
     .statistics-section {
       background: white;
       border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 30px;
+      padding: 15px;
+      margin-top: 30px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .statistics-section h2 {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       color: #2c3e50;
       border-bottom: 2px solid #3498db;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
+      font-size: 18px;
     }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
     }
 
     .stat-card {
       background: #f8f9fa;
-      border-radius: 8px;
-      padding: 20px;
+      border-radius: 6px;
+      padding: 12px;
       text-align: center;
       border: 2px solid #e0e0e0;
-      transition: all 0.3s;
+      transition: all 0.2s;
     }
 
     .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.08);
     }
 
     .stat-card.highlight {
@@ -496,51 +488,47 @@ import { Category, Location, Tag } from '../../models/item.model';
     }
 
     .stat-value {
-      font-size: 32px;
+      font-size: 24px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
     .stat-label {
-      font-size: 14px;
+      font-size: 11px;
       opacity: 0.9;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     .stat-list-card {
       background: #f8f9fa;
-      border-radius: 8px;
-      padding: 20px;
+      border-radius: 6px;
+      padding: 12px;
       border: 2px solid #e0e0e0;
     }
 
-    .stat-list-card.full-width {
-      grid-column: 1 / -1;
-    }
-
     .stat-list-card h3 {
-      margin: 0 0 15px 0;
+      margin: 0 0 10px 0;
       color: #2c3e50;
-      font-size: 16px;
+      font-size: 13px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     .stat-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
     }
 
     .stat-list-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 12px;
+      padding: 6px 10px;
       background: white;
-      border-radius: 4px;
+      border-radius: 3px;
       transition: all 0.2s;
     }
 
@@ -552,20 +540,14 @@ import { Category, Location, Tag } from '../../models/item.model';
       flex: 1;
       color: #2c3e50;
       font-weight: 500;
+      font-size: 13px;
     }
 
     .stat-list-count {
       font-weight: 700;
       color: #3498db;
-      font-size: 16px;
-      margin-left: 10px;
-    }
-
-    .stat-empty {
-      text-align: center;
-      padding: 20px;
-      color: #95a5a6;
-      font-style: italic;
+      font-size: 14px;
+      margin-left: 8px;
     }
 
     .settings-grid {
