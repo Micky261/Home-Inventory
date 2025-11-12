@@ -379,28 +379,32 @@ import { Category, Location, Tag } from '../../models/item.model';
           Lade Statistiken...
         </div>
 
-        <div *ngIf="!loadingStatistics && statistics" class="stats-grid">
-          <!-- Overview Stats -->
-          <div class="stat-card highlight">
-            <div class="stat-value">{{ statistics.total_items }}</div>
-            <div class="stat-label" i18n="@@stats.totalItems">Artikel</div>
+        <div *ngIf="!loadingStatistics && statistics" class="stats-container">
+          <!-- Overview Stats Column -->
+          <div class="stats-overview">
+            <div class="stat-card highlight">
+              <div class="stat-value">{{ statistics.total_items }}</div>
+              <div class="stat-label" i18n="@@stats.totalItems">Artikel</div>
+            </div>
+
+            <div class="stat-card highlight">
+              <div class="stat-value">{{ statistics.total_value | number:'1.2-2' }} €</div>
+              <div class="stat-label" i18n="@@stats.totalValue">Gesamtwert</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-value">{{ statistics.items_without_image }}</div>
+              <div class="stat-label" i18n="@@stats.withoutImage">Ohne Bild</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-value">{{ statistics.items_without_price }}</div>
+              <div class="stat-label" i18n="@@stats.withoutPrice">Ohne Preis</div>
+            </div>
           </div>
 
-          <div class="stat-card highlight">
-            <div class="stat-value">{{ statistics.total_value | number:'1.2-2' }} €</div>
-            <div class="stat-label" i18n="@@stats.totalValue">Gesamtwert</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-value">{{ statistics.items_without_image }}</div>
-            <div class="stat-label" i18n="@@stats.withoutImage">Ohne Bild</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-value">{{ statistics.items_without_price }}</div>
-            <div class="stat-label" i18n="@@stats.withoutPrice">Ohne Preis</div>
-          </div>
-
+          <!-- Top Lists Grid -->
+          <div class="stats-lists">
           <!-- Top Categories -->
           <div class="stat-list-card">
             <h3 i18n="@@stats.topCategories">Top Kategorien</h3>
@@ -435,6 +439,7 @@ import { Category, Location, Tag } from '../../models/item.model';
               </div>
             </div>
           </div>
+          </div>
         </div>
       </div>
 
@@ -461,9 +466,22 @@ import { Category, Location, Tag } from '../../models/item.model';
       font-size: 18px;
     }
 
-    .stats-grid {
+    .stats-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: auto 1fr;
+      gap: 15px;
+    }
+
+    .stats-overview {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 180px;
+    }
+
+    .stats-lists {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 12px;
     }
 
@@ -474,6 +492,18 @@ import { Category, Location, Tag } from '../../models/item.model';
       text-align: center;
       border: 2px solid #e0e0e0;
       transition: all 0.2s;
+    }
+
+    @media (max-width: 768px) {
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
     }
 
     .stat-card:hover {
@@ -530,6 +560,8 @@ import { Category, Location, Tag } from '../../models/item.model';
       background: white;
       border-radius: 3px;
       transition: all 0.2s;
+      gap: 8px;
+      overflow: hidden;
     }
 
     .stat-list-item:hover {
@@ -541,13 +573,24 @@ import { Category, Location, Tag } from '../../models/item.model';
       color: #2c3e50;
       font-weight: 500;
       font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stat-list-item .tag-badge {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
     }
 
     .stat-list-count {
       font-weight: 700;
       color: #3498db;
       font-size: 14px;
-      margin-left: 8px;
+      flex-shrink: 0;
     }
 
     .settings-grid {
