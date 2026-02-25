@@ -36,20 +36,23 @@ RUN mkdir -p /var/www/html/data \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Apache configuration for API routing
-RUN echo '<Directory /var/www/html>\n\
+# Set Apache DocumentRoot to public/ where index.php lives
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf \
+    && sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/apache2.conf
+
+# Apache configuration: rewrite all requests to index.php (Slim router)
+RUN echo '<Directory /var/www/html/public>\n\
     Options Indexes FollowSymLinks\n\
     AllowOverride All\n\
     Require all granted\n\
-</Directory>\n\
-\n\
-# Handle API routes\n\
-<IfModule mod_rewrite.c>\n\
-    RewriteEngine On\n\
-    RewriteCond %{REQUEST_FILENAME} !-f\n\
-    RewriteCond %{REQUEST_FILENAME} !-d\n\
-    RewriteRule ^ index.php [QSA,L]\n\
-</IfModule>' > /etc/apache2/conf-available/api-rewrite.conf \
+    <IfModule mod_rewrite.c>\n\
+        RewriteEngine On\n\
+        RewriteCond %{REQUEST_FILENAME} !-f\n\
+        RewriteCond %{REQUEST_FILENAME} !-d\n\
+        RewriteRule ^ index.php [QSA,L]\n\
+    </IfModule>\n\
+</Directory>' > /etc/apache2/conf-available/api-rewrite.conf \
     && a2enconf api-rewrite
 
 # Expose port
