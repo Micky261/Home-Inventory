@@ -33,7 +33,7 @@ class Item
                 LEFT JOIN locations l ON i.ort_id = l.id
                 LEFT JOIN categories c ON i.kategorie_id = c.id';
 
-        if ($tags && count($tags) > 0) {
+        if ($tags && count($tags) > 0 && $tagMode !== 'exclude') {
             $sql .= ' INNER JOIN item_tags it ON i.id = it.item_id';
         }
 
@@ -66,74 +66,58 @@ class Item
             }
         }
 
-        // Category filter - Union (OR) or Intersect (AND)
+        // Category filter - Union (OR), Intersect (AND), or Exclude (NOT)
         if ($kategorien && count($kategorien) > 0) {
-            if ($categoryMode === 'intersect') {
-                // Intersect: Not really applicable for single kategorie_id field
-                // We'll treat it as union since an item can only have one category
-                $placeholders = [];
-                foreach ($kategorien as $index => $kat) {
-                    $placeholder = ':kategorie' . $index;
-                    $placeholders[] = $placeholder;
-                    $params[$placeholder] = $kat;
-                }
-                $sql .= ' AND i.kategorie_id IN (' . implode(',', $placeholders) . ')';
+            $placeholders = [];
+            foreach ($kategorien as $index => $kat) {
+                $placeholder = ':kategorie' . $index;
+                $placeholders[] = $placeholder;
+                $params[$placeholder] = $kat;
+            }
+            if ($categoryMode === 'exclude') {
+                // Exclude: item must NOT have any of the selected categories
+                $sql .= ' AND (i.kategorie_id IS NULL OR i.kategorie_id NOT IN (' . implode(',', $placeholders) . '))';
             } else {
-                // Union: item has at least one of the selected categories
-                $placeholders = [];
-                foreach ($kategorien as $index => $kat) {
-                    $placeholder = ':kategorie' . $index;
-                    $placeholders[] = $placeholder;
-                    $params[$placeholder] = $kat;
-                }
+                // Union/Intersect: item has at least one of the selected categories
                 $sql .= ' AND i.kategorie_id IN (' . implode(',', $placeholders) . ')';
             }
         }
 
-        // Location filter - Union (OR) or Intersect (AND)
+        // Location filter - Union (OR), Intersect (AND), or Exclude (NOT)
         if ($orte && count($orte) > 0) {
-            if ($locationMode === 'intersect') {
-                // Intersect: Not really applicable for single ort_id field
-                // We'll treat it as union since an item can only have one location
-                $placeholders = [];
-                foreach ($orte as $index => $ort) {
-                    $placeholder = ':ort' . $index;
-                    $placeholders[] = $placeholder;
-                    $params[$placeholder] = $ort;
-                }
-                $sql .= ' AND i.ort_id IN (' . implode(',', $placeholders) . ')';
+            $placeholders = [];
+            foreach ($orte as $index => $ort) {
+                $placeholder = ':ort' . $index;
+                $placeholders[] = $placeholder;
+                $params[$placeholder] = $ort;
+            }
+            if ($locationMode === 'exclude') {
+                // Exclude: item must NOT have any of the selected locations
+                $sql .= ' AND (i.ort_id IS NULL OR i.ort_id NOT IN (' . implode(',', $placeholders) . '))';
             } else {
-                // Union: item has at least one of the selected locations
-                $placeholders = [];
-                foreach ($orte as $index => $ort) {
-                    $placeholder = ':ort' . $index;
-                    $placeholders[] = $placeholder;
-                    $params[$placeholder] = $ort;
-                }
+                // Union/Intersect: item has at least one of the selected locations
                 $sql .= ' AND i.ort_id IN (' . implode(',', $placeholders) . ')';
             }
         }
 
-        // Tag filter - Union (OR) or Intersect (AND)
+        // Tag filter - Union (OR), Intersect (AND), or Exclude (NOT)
         if ($tags && count($tags) > 0) {
-            if ($tagMode === 'intersect') {
+            $placeholders = [];
+            foreach ($tags as $index => $tag) {
+                $placeholder = ':tag' . $index;
+                $placeholders[] = $placeholder;
+                $params[$placeholder] = $tag;
+            }
+            if ($tagMode === 'exclude') {
+                // Exclude: item must NOT have any of the selected tags
+                // We need to modify the query to exclude items with these tags
+                $sql .= ' AND i.id NOT IN (SELECT item_id FROM item_tags WHERE tag_id IN (' . implode(',', $placeholders) . '))';
+            } else if ($tagMode === 'intersect') {
                 // Intersect: item must have ALL selected tags
-                $placeholders = [];
-                foreach ($tags as $index => $tag) {
-                    $placeholder = ':tag' . $index;
-                    $placeholders[] = $placeholder;
-                    $params[$placeholder] = $tag;
-                }
                 $sql .= ' AND it.tag_id IN (' . implode(',', $placeholders) . ')';
                 $sql .= ' GROUP BY i.id HAVING COUNT(DISTINCT it.tag_id) = ' . count($tags);
             } else {
                 // Union: item must have AT LEAST ONE selected tag
-                $placeholders = [];
-                foreach ($tags as $index => $tag) {
-                    $placeholder = ':tag' . $index;
-                    $placeholders[] = $placeholder;
-                    $params[$placeholder] = $tag;
-                }
                 $sql .= ' AND it.tag_id IN (' . implode(',', $placeholders) . ')';
             }
         }

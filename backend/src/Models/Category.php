@@ -65,4 +65,43 @@ class Category
         $stmt = $this->db->prepare('DELETE FROM categories WHERE id = :id');
         return $stmt->execute([':id' => $id]);
     }
+
+    public function getItemsForCategory($categoryId)
+    {
+        $stmt = $this->db->prepare('
+            SELECT i.*, l.name as ort_name, l.path as ort_path, c.name as kategorie_name
+            FROM items i
+            LEFT JOIN locations l ON i.ort_id = l.id
+            LEFT JOIN categories c ON i.kategorie_id = c.id
+            WHERE i.kategorie_id = :category_id
+            ORDER BY i.name
+        ');
+        $stmt->execute([':category_id' => $categoryId]);
+        $items = $stmt->fetchAll();
+
+        // Add tags to each item
+        $tagModel = new Tag($this->db);
+        foreach ($items as &$item) {
+            $item['tags'] = $tagModel->getItemTags($item['id']);
+        }
+
+        return $items;
+    }
+
+    public function getItemCount($categoryId)
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) as count FROM items WHERE kategorie_id = :category_id');
+        $stmt->execute([':category_id' => $categoryId]);
+        $result = $stmt->fetch();
+        return $result['count'];
+    }
+
+    public function getAllWithCounts()
+    {
+        $categories = $this->getAll();
+        foreach ($categories as &$category) {
+            $category['item_count'] = $this->getItemCount($category['id']);
+        }
+        return $categories;
+    }
 }

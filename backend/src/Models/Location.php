@@ -17,6 +17,23 @@ class Location
         return $stmt->fetchAll();
     }
 
+    public function getAllWithCounts()
+    {
+        $stmt = $this->db->query('
+            SELECT l.*,
+                   (SELECT COUNT(*) FROM items WHERE ort_id = l.id) as item_count
+            FROM locations l
+            ORDER BY l.path, l.name
+        ');
+        return $stmt->fetchAll();
+    }
+
+    public function getTreeWithCounts()
+    {
+        $locations = $this->getAllWithCounts();
+        return $this->buildTree($locations);
+    }
+
     public function getTree()
     {
         $locations = $this->getAll();
@@ -139,5 +156,57 @@ class Location
     {
         $location = $this->getById($id);
         return $location ? $location['path'] : null;
+    }
+
+    public function updateDetails($id, $description = null, $inventoryStatus = null)
+    {
+        $location = $this->getById($id);
+        if (!$location) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare('UPDATE locations SET description = :description, inventory_status = :inventory_status WHERE id = :id');
+        return $stmt->execute([
+            ':id' => $id,
+            ':description' => $description,
+            ':inventory_status' => $inventoryStatus ?? 'none'
+        ]);
+    }
+
+    public function getItemsForLocation($id)
+    {
+        $stmt = $this->db->prepare('
+            SELECT i.*,
+                   c.name as kategorie_name,
+                   l.name as ort_name,
+                   l.path as ort_path
+            FROM items i
+            LEFT JOIN categories c ON i.kategorie_id = c.id
+            LEFT JOIN locations l ON i.ort_id = l.id
+            WHERE i.ort_id = :id
+            ORDER BY i.name
+        ');
+        $stmt->execute([':id' => $id]);
+        $items = $stmt->fetchAll();
+
+        // Get tags for each item
+        foreach ($items as &$item) {
+            $tagStmt = $this->db->prepare('
+                SELECT t.* FROM tags t
+                JOIN item_tags it ON t.id = it.tag_id
+                WHERE it.item_id = :item_id
+            ');
+            $tagStmt->execute([':item_id' => $item['id']]);
+            $item['tags'] = $tagStmt->fetchAll();
+        }
+
+        return $items;
+    }
+
+    public function getChildLocations($id)
+    {
+        $stmt = $this->db->prepare('SELECT * FROM locations WHERE parent_id = :id ORDER BY name');
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetchAll();
     }
 }

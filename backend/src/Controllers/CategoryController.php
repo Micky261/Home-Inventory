@@ -22,6 +22,33 @@ class CategoryController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function indexWithCounts(Request $request, Response $response)
+    {
+        $categories = $this->categoryModel->getAllWithCounts();
+        $response->getBody()->write(json_encode($categories));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function show(Request $request, Response $response, $args)
+    {
+        $category = $this->categoryModel->getById($args['id']);
+
+        if (!$category) {
+            $response->getBody()->write(json_encode(['error' => 'Category not found']));
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        }
+
+        $items = $this->categoryModel->getItemsForCategory($args['id']);
+
+        $result = [
+            'category' => $category,
+            'items' => $items
+        ];
+
+        $response->getBody()->write(json_encode($result));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function create(Request $request, Response $response)
     {
         $data = json_decode($request->getBody(), true);

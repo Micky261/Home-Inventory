@@ -60,18 +60,24 @@ $app->group('/api', function ($group) use ($itemController, $locationController,
     // Locations
     $group->get('/locations', [$locationController, 'index']);
     $group->get('/locations/tree', [$locationController, 'tree']);
+    $group->get('/locations/{id}', [$locationController, 'show']);
     $group->post('/locations', [$locationController, 'create']);
     $group->put('/locations/{id}', [$locationController, 'update']);
+    $group->put('/locations/{id}/details', [$locationController, 'updateDetails']);
     $group->delete('/locations/{id}', [$locationController, 'delete']);
 
     // Categories
     $group->get('/categories', [$categoryController, 'index']);
+    $group->get('/categories/overview', [$categoryController, 'indexWithCounts']);
+    $group->get('/categories/{id}', [$categoryController, 'show']);
     $group->post('/categories', [$categoryController, 'create']);
     $group->put('/categories/{id}', [$categoryController, 'update']);
     $group->delete('/categories/{id}', [$categoryController, 'delete']);
 
     // Tags
     $group->get('/tags', [$tagController, 'index']);
+    $group->get('/tags/overview', [$tagController, 'indexWithCounts']);
+    $group->get('/tags/{id}', [$tagController, 'show']);
     $group->post('/tags', [$tagController, 'create']);
     $group->put('/tags/{id}', [$tagController, 'update']);
     $group->delete('/tags/{id}', [$tagController, 'delete']);

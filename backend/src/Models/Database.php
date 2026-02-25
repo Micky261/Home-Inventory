@@ -46,6 +46,8 @@ class Database
                 name TEXT NOT NULL,
                 parent_id INTEGER,
                 path TEXT,
+                description TEXT,
+                inventory_status TEXT DEFAULT "none",
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (parent_id) REFERENCES locations(id) ON DELETE CASCADE
             )

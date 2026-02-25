@@ -22,6 +22,33 @@ class TagController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function indexWithCounts(Request $request, Response $response)
+    {
+        $tags = $this->tagModel->getAllWithCounts();
+        $response->getBody()->write(json_encode($tags));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function show(Request $request, Response $response, $args)
+    {
+        $tag = $this->tagModel->getById($args['id']);
+
+        if (!$tag) {
+            $response->getBody()->write(json_encode(['error' => 'Tag not found']));
+            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+        }
+
+        $items = $this->tagModel->getItemsForTag($args['id']);
+
+        $result = [
+            'tag' => $tag,
+            'items' => $items
+        ];
+
+        $response->getBody()->write(json_encode($result));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function create(Request $request, Response $response)
     {
         $data = json_decode($request->getBody(), true);

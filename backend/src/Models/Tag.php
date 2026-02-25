@@ -86,4 +86,43 @@ class Tag
 
         return true;
     }
+
+    public function getItemsForTag($tagId)
+    {
+        $stmt = $this->db->prepare('
+            SELECT i.*, l.name as ort_name, l.path as ort_path, c.name as kategorie_name
+            FROM items i
+            INNER JOIN item_tags it ON i.id = it.item_id
+            LEFT JOIN locations l ON i.ort_id = l.id
+            LEFT JOIN categories c ON i.kategorie_id = c.id
+            WHERE it.tag_id = :tag_id
+            ORDER BY i.name
+        ');
+        $stmt->execute([':tag_id' => $tagId]);
+        $items = $stmt->fetchAll();
+
+        // Add tags to each item
+        foreach ($items as &$item) {
+            $item['tags'] = $this->getItemTags($item['id']);
+        }
+
+        return $items;
+    }
+
+    public function getItemCount($tagId)
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) as count FROM item_tags WHERE tag_id = :tag_id');
+        $stmt->execute([':tag_id' => $tagId]);
+        $result = $stmt->fetch();
+        return $result['count'];
+    }
+
+    public function getAllWithCounts()
+    {
+        $tags = $this->getAll();
+        foreach ($tags as &$tag) {
+            $tag['item_count'] = $this->getItemCount($tag['id']);
+        }
+        return $tags;
+    }
 }
