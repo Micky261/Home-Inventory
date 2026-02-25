@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Item } from '../../models/item.model';
 import { ApiService } from '../../services/api.service';
 
@@ -31,9 +32,9 @@ import { ApiService } from '../../services/api.service';
               <span>{{ item.kategorie_name }}</span>
             </div>
 
-            <div class="info-item" *ngIf="item.ort_path || item.ort_name">
+            <div class="info-item" *ngIf="item.ort_id">
               <label i18n="@@items.location">Ort</label>
-              <span>{{ item.ort_path || item.ort_name }}</span>
+              <span class="location-link" (click)="goToLocation(item.ort_id!)">{{ item.ort_path || item.ort_name }}</span>
             </div>
 
             <div class="info-item" *ngIf="item.artikelnummer">
@@ -57,7 +58,7 @@ import { ApiService } from '../../services/api.service';
             </div>
 
             <div class="info-item" *ngIf="item.hersteller">
-              <label i18n="@@items.manufacturer">Hersteller</label>
+              <label i18n="@@items.manufacturer">Marke/Hersteller</label>
               <span>{{ item.hersteller }}</span>
             </div>
 
@@ -71,9 +72,10 @@ import { ApiService } from '../../services/api.service';
               <div class="tags-display">
                 <span
                   *ngFor="let tag of item.tags"
-                  class="tag-badge"
+                  class="tag-badge tag-link"
                   [style.background-color]="tag.color"
                   [style.color]="getTextColor(tag.color)"
+                  (click)="goToTag(tag.id)"
                 >
                   {{ tag.name }}
                 </span>
@@ -226,6 +228,15 @@ import { ApiService } from '../../services/api.service';
       color: #2c3e50;
     }
 
+    .location-link {
+      color: #3498db !important;
+      cursor: pointer;
+    }
+
+    .location-link:hover {
+      text-decoration: underline;
+    }
+
     .tags-display {
       display: flex;
       flex-wrap: wrap;
@@ -238,6 +249,16 @@ import { ApiService } from '../../services/api.service';
       border-radius: 12px;
       font-size: 13px;
       font-weight: 500;
+    }
+
+    .tag-link {
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .tag-link:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
     .notes-section {
@@ -307,7 +328,10 @@ export class ItemDetailComponent {
   @Output() close = new EventEmitter<void>();
   @Output() edit = new EventEmitter<Item>();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private router: Router
+  ) {}
 
   onClose() {
     this.close.emit();
@@ -315,6 +339,16 @@ export class ItemDetailComponent {
 
   onEdit() {
     this.edit.emit(this.item);
+  }
+
+  goToLocation(locationId: number) {
+    this.close.emit();
+    this.router.navigate(['/location', locationId]);
+  }
+
+  goToTag(tagId: number) {
+    this.close.emit();
+    this.router.navigate(['/tag', tagId]);
   }
 
   getImageUrl(filename: string): string {

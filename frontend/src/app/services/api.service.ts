@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Item, Location, Category, Tag } from '../models/item.model';
+import { Item, Location, LocationDetails, Category, CategoryDetails, Tag, TagDetails } from '../models/item.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -31,9 +31,9 @@ export class ApiService {
     kategorien?: number[],
     orte?: number[],
     tags?: number[],
-    categoryMode?: 'union' | 'intersect',
-    locationMode?: 'union' | 'intersect',
-    tagMode?: 'union' | 'intersect'
+    categoryMode?: 'union' | 'intersect' | 'exclude',
+    locationMode?: 'union' | 'intersect' | 'exclude',
+    tagMode?: 'union' | 'intersect' | 'exclude'
   ): Observable<Item[]> {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
@@ -145,6 +145,18 @@ export class ApiService {
     });
   }
 
+  getCategoriesWithCounts(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.apiUrl}/categories/overview`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  getCategoryDetails(id: number): Observable<CategoryDetails> {
+    return this.http.get<CategoryDetails>(`${this.apiUrl}/categories/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
   // Locations
   getLocations(): Observable<Location[]> {
     return this.http.get<Location[]>(`${this.apiUrl}/locations`, {
@@ -184,6 +196,21 @@ export class ApiService {
     });
   }
 
+  getLocationDetails(id: number): Observable<LocationDetails> {
+    return this.http.get<LocationDetails>(`${this.apiUrl}/locations/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  updateLocationDetails(id: number, description: string | null, inventoryStatus: 'none' | 'partial' | 'complete'): Observable<Location> {
+    return this.http.put<Location>(`${this.apiUrl}/locations/${id}/details`, {
+      description,
+      inventory_status: inventoryStatus
+    }, {
+      headers: this.getHeaders()
+    });
+  }
+
   // Tags
   getTags(): Observable<Tag[]> {
     return this.http.get<Tag[]>(`${this.apiUrl}/tags`, {
@@ -205,6 +232,18 @@ export class ApiService {
 
   deleteTag(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/tags/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  getTagsWithCounts(): Observable<Tag[]> {
+    return this.http.get<Tag[]>(`${this.apiUrl}/tags/overview`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  getTagDetails(id: number): Observable<TagDetails> {
+    return this.http.get<TagDetails>(`${this.apiUrl}/tags/${id}`, {
       headers: this.getHeaders()
     });
   }

@@ -19,9 +19,13 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
           <button class="btn btn-success" (click)="openAddModal()" i18n="@@items.add">
             + Artikel hinzufügen
           </button>
-          <button class="btn btn-primary" (click)="goToSettings()" i18n="@@items.settings">
-            ⚙️ Einstellungen
-          </button>
+          <nav class="main-nav">
+            <span class="nav-item active">📦 Artikel</span>
+            <a class="nav-item" (click)="goToLocations()">📍 Orte</a>
+            <a class="nav-item" (click)="goToTags()">🏷️ Tags</a>
+            <a class="nav-item" (click)="goToCategories()">📁 Kategorien</a>
+            <a class="nav-item" (click)="goToSettings()">⚙️ Einstellungen</a>
+          </nav>
           <button class="btn btn-secondary" (click)="logout()" i18n="@@app.logout">
             Abmelden
           </button>
@@ -92,6 +96,15 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                 >
                   UND
                 </button>
+                <button
+                  class="mode-btn mode-btn-exclude"
+                  [class.active]="categoryMode === 'exclude'"
+                  (click)="categoryMode = 'exclude'; search()"
+                  title="Keine dieser Kategorien (NICHT)"
+                  i18n-title="@@items.categoryModeExclude"
+                >
+                  NICHT
+                </button>
               </div>
             </div>
             <div class="filter-options">
@@ -131,6 +144,15 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                 >
                   UND
                 </button>
+                <button
+                  class="mode-btn mode-btn-exclude"
+                  [class.active]="locationMode === 'exclude'"
+                  (click)="locationMode = 'exclude'; search()"
+                  title="Keiner dieser Orte (NICHT)"
+                  i18n-title="@@items.locationModeExclude"
+                >
+                  NICHT
+                </button>
               </div>
             </div>
             <div class="filter-options">
@@ -151,7 +173,7 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
           <div class="filter-section">
             <div class="filter-header">
               <h4 i18n="@@items.tags">Tags</h4>
-              <div class="tag-mode-toggle">
+              <div class="filter-mode-toggle">
                 <button
                   class="mode-btn"
                   [class.active]="tagMode === 'union'"
@@ -169,6 +191,15 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                   i18n-title="@@items.tagModeIntersect"
                 >
                   UND
+                </button>
+                <button
+                  class="mode-btn mode-btn-exclude"
+                  [class.active]="tagMode === 'exclude'"
+                  (click)="tagMode = 'exclude'; search()"
+                  title="Keines dieser Tags (NICHT)"
+                  i18n-title="@@items.tagModeExclude"
+                >
+                  NICHT
                 </button>
               </div>
             </div>
@@ -262,7 +293,10 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                 <div *ngIf="!item.bild" class="no-image" i18n="@@items.noImage">Kein Bild</div>
               </td>
               <td>
-                <div>{{ item.name }}</div>
+                <div>
+                  {{ item.name }}
+                  <span *ngIf="item.notizen" class="description-indicator" title="Hat Beschreibung">📝</span>
+                </div>
                 <small class="item-meta" *ngIf="item.artikelnummer || item.farbe || item.menge">
                   <span *ngIf="item.artikelnummer">Art.-Nr.: {{ item.artikelnummer }}</span>
                   <span *ngIf="item.artikelnummer && (item.farbe || item.menge)"> • </span>
@@ -276,15 +310,26 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
                   <span *ngIf="item.haendler">{{ item.haendler }}</span>
                 </small>
               </td>
-              <td>{{ item.kategorie_name || '-' }}</td>
-              <td>{{ item.ort_path || item.ort_name || '-' }}</td>
               <td>
+                <a *ngIf="item.kategorie_id" class="category-link" (click)="goToCategory(item.kategorie_id!, $event)">
+                  {{ item.kategorie_name }}
+                </a>
+                <span *ngIf="!item.kategorie_id">-</span>
+              </td>
+              <td>
+                <a *ngIf="item.ort_id" class="location-link" (click)="goToLocation(item.ort_id!, $event)">
+                  {{ item.ort_path || item.ort_name }}
+                </a>
+                <span *ngIf="!item.ort_id">-</span>
+              </td>
+              <td (click)="$event.stopPropagation()">
                 <div class="tags-cell">
                   <span
                     *ngFor="let tag of item.tags"
-                    class="tag-badge"
+                    class="tag-badge tag-link"
                     [style.background-color]="tag.color"
                     [style.color]="getTextColor(tag.color)"
+                    (click)="goToTagDetail(tag.id)"
                   >
                     {{ tag.name }}
                   </span>
@@ -374,7 +419,10 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
             <div *ngIf="!item.bild" class="no-image-card" i18n="@@items.noImage">Kein Bild</div>
           </div>
           <div class="card-content">
-            <h3>{{ item.name }}</h3>
+            <h3>
+              {{ item.name }}
+              <span *ngIf="item.notizen" class="description-indicator" title="Hat Beschreibung">📝</span>
+            </h3>
             <small class="item-meta" *ngIf="item.artikelnummer || item.farbe || item.menge">
               <span *ngIf="item.artikelnummer">Art.-Nr.: {{ item.artikelnummer }}</span>
               <span *ngIf="item.artikelnummer && (item.farbe || item.menge)"> • </span>
@@ -388,24 +436,29 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
               <span *ngIf="item.haendler">{{ item.haendler }}</span>
             </small>
             <div class="card-info">
-              <div *ngIf="item.kategorie_name" class="info-row">
+              <div *ngIf="item.kategorie_id" class="info-row">
                 <span class="label" i18n="@@items.category">Kategorie</span>
-                <span>{{ item.kategorie_name }}</span>
+                <a class="category-link" (click)="goToCategory(item.kategorie_id!, $event)">
+                  {{ item.kategorie_name }}
+                </a>
               </div>
-              <div *ngIf="item.ort_path || item.ort_name" class="info-row">
+              <div *ngIf="item.ort_id" class="info-row">
                 <span class="label" i18n="@@items.location">Ort</span>
-                <span>{{ item.ort_path || item.ort_name }}</span>
+                <a class="location-link" (click)="goToLocation(item.ort_id!, $event)">
+                  {{ item.ort_path || item.ort_name }}
+                </a>
               </div>
               <div *ngIf="item.preis" class="info-row">
                 <span class="label" i18n="@@items.price">Preis</span>
                 <span>{{ item.preis | number:'1.2-2' }} €</span>
               </div>
-              <div *ngIf="item.tags && item.tags.length > 0" class="card-tags">
+              <div *ngIf="item.tags && item.tags.length > 0" class="card-tags" (click)="$event.stopPropagation()">
                 <span
                   *ngFor="let tag of item.tags"
-                  class="tag-badge"
+                  class="tag-badge tag-link"
                   [style.background-color]="tag.color"
                   [style.color]="getTextColor(tag.color)"
+                  (click)="goToTagDetail(tag.id)"
                 >
                   {{ tag.name }}
                 </span>
@@ -622,6 +675,62 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
       font-style: italic;
     }
 
+    .description-indicator {
+      font-size: 12px;
+      margin-left: 6px;
+      opacity: 0.7;
+      cursor: help;
+    }
+
+    .location-link, .location-link:visited,
+    .category-link, .category-link:visited {
+      color: #3498db !important;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .location-link:hover, .category-link:hover {
+      text-decoration: underline;
+    }
+
+    .tag-link {
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .tag-link:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 4px;
+      background: rgba(255,255,255,0.1);
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .nav-item {
+      padding: 8px 14px;
+      border-radius: 4px;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .nav-item.active {
+      background: rgba(255,255,255,0.25);
+      font-weight: 600;
+      cursor: default;
+    }
+
     .search-controls {
       margin-bottom: 20px;
     }
@@ -718,23 +827,28 @@ import { ItemDetailComponent } from '../item-detail/item-detail.component';
       margin: 0;
     }
 
-    .tag-mode-toggle {
+    .filter-mode-toggle {
       display: flex;
-      gap: 5px;
+      gap: 4px;
     }
 
     .mode-btn {
-      padding: 4px 12px;
+      padding: 4px 8px;
       border: 1px solid #ddd;
       background: white;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 11px;
       border-radius: 4px;
       transition: all 0.2s;
     }
 
     .mode-btn:hover {
       background: #f8f9fa;
+    }
+
+    .mode-btn-exclude.active {
+      background: #e74c3c;
+      border-color: #e74c3c;
     }
 
     .mode-btn.active {
@@ -984,9 +1098,9 @@ export class ItemListComponent implements OnInit {
   filterKategorien: number[] = [];
   filterOrte: number[] = [];
   filterTags: number[] = [];
-  categoryMode: 'union' | 'intersect' = 'union';
-  locationMode: 'union' | 'intersect' = 'union';
-  tagMode: 'union' | 'intersect' = 'union';
+  categoryMode: 'union' | 'intersect' | 'exclude' = 'union';
+  locationMode: 'union' | 'intersect' | 'exclude' = 'union';
+  tagMode: 'union' | 'intersect' | 'exclude' = 'union';
   loading = false;
   showModal = false;
   selectedItem: Item | null = null;
@@ -1210,6 +1324,32 @@ export class ItemListComponent implements OnInit {
 
   goToSettings() {
     this.router.navigate(['/settings']);
+  }
+
+  goToLocations() {
+    this.router.navigate(['/locations']);
+  }
+
+  goToTags() {
+    this.router.navigate(['/tags']);
+  }
+
+  goToCategories() {
+    this.router.navigate(['/categories']);
+  }
+
+  goToCategory(categoryId: number, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/category', categoryId]);
+  }
+
+  goToTagDetail(tagId: number) {
+    this.router.navigate(['/tag', tagId]);
+  }
+
+  goToLocation(locationId: number, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/location', locationId]);
   }
 
   logout() {

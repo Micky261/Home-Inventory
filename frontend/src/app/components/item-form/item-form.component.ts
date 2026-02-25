@@ -149,7 +149,7 @@ import { ApiService } from '../../services/api.service';
 
             <div class="form-row">
               <div class="form-group">
-                <label i18n="@@form.manufacturer">Hersteller</label>
+                <label i18n="@@form.manufacturer">Marke/Hersteller</label>
                 <input
                   type="text"
                   [(ngModel)]="formData.hersteller"

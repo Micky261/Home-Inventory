@@ -612,5 +612,511 @@
         <target>Oder eigene Farbe</target>
       </segment>
     </unit>
+    <unit id="settings.viewDetails">
+      <segment>
+        <source>View details</source>
+        <target>Details anzeigen</target>
+      </segment>
+    </unit>
+    <unit id="settings.statusComplete">
+      <segment>
+        <source>Complete</source>
+        <target>Vollständig</target>
+      </segment>
+    </unit>
+    <unit id="settings.statusPartial">
+      <segment>
+        <source>Partial</source>
+        <target>Teilweise</target>
+      </segment>
+    </unit>
+    <unit id="settings.statusNone">
+      <segment>
+        <source>Not inventoried</source>
+        <target>Nicht erfasst</target>
+      </segment>
+    </unit>
+
+    <!-- Location Detail Page -->
+    <unit id="location.back">
+      <segment>
+        <source>Back</source>
+        <target>Zurück</target>
+      </segment>
+    </unit>
+    <unit id="location.toItems">
+      <segment>
+        <source>To item list</source>
+        <target>Zur Artikelliste</target>
+      </segment>
+    </unit>
+    <unit id="location.toSettings">
+      <segment>
+        <source>Settings</source>
+        <target>Einstellungen</target>
+      </segment>
+    </unit>
+    <unit id="location.statusComplete">
+      <segment>
+        <source>Fully inventoried</source>
+        <target>Vollständig inventarisiert</target>
+      </segment>
+    </unit>
+    <unit id="location.statusPartial">
+      <segment>
+        <source>Partially inventoried</source>
+        <target>Teilweise inventarisiert</target>
+      </segment>
+    </unit>
+    <unit id="location.statusNone">
+      <segment>
+        <source>Not inventoried</source>
+        <target>Nicht inventarisiert</target>
+      </segment>
+    </unit>
+    <unit id="location.edit">
+      <segment>
+        <source>Edit</source>
+        <target>Bearbeiten</target>
+      </segment>
+    </unit>
+    <unit id="location.description">
+      <segment>
+        <source>Description</source>
+        <target>Beschreibung</target>
+      </segment>
+    </unit>
+    <unit id="location.noDescription">
+      <segment>
+        <source>No description available</source>
+        <target>Keine Beschreibung vorhanden</target>
+      </segment>
+    </unit>
+    <unit id="location.inventoryStatus">
+      <segment>
+        <source>Inventory status</source>
+        <target>Inventarisierungsstatus</target>
+      </segment>
+    </unit>
+    <unit id="location.statusNoneOption">
+      <segment>
+        <source>Not inventoried</source>
+        <target>Nicht inventarisiert</target>
+      </segment>
+    </unit>
+    <unit id="location.statusPartialOption">
+      <segment>
+        <source>Partially inventoried</source>
+        <target>Teilweise inventarisiert</target>
+      </segment>
+    </unit>
+    <unit id="location.statusCompleteOption">
+      <segment>
+        <source>Fully inventoried</source>
+        <target>Vollständig inventarisiert</target>
+      </segment>
+    </unit>
+    <unit id="location.descriptionLabel">
+      <segment>
+        <source>Description</source>
+        <target>Beschreibung</target>
+      </segment>
+    </unit>
+    <unit id="location.descriptionPlaceholder">
+      <segment>
+        <source>Enter description...</source>
+        <target>Beschreibung eingeben...</target>
+      </segment>
+    </unit>
+    <unit id="location.save">
+      <segment>
+        <source>Save</source>
+        <target>Speichern</target>
+      </segment>
+    </unit>
+    <unit id="location.cancel">
+      <segment>
+        <source>Cancel</source>
+        <target>Abbrechen</target>
+      </segment>
+    </unit>
+    <unit id="location.shareLink">
+      <segment>
+        <source>Direct link to this location</source>
+        <target>Direktlink zu diesem Ort</target>
+      </segment>
+    </unit>
+    <unit id="location.copyLink">
+      <segment>
+        <source>Copy</source>
+        <target>Kopieren</target>
+      </segment>
+    </unit>
+    <unit id="location.copied">
+      <segment>
+        <source>Copied!</source>
+        <target>Kopiert!</target>
+      </segment>
+    </unit>
+    <unit id="location.subLocations">
+      <segment>
+        <source>Sub-locations</source>
+        <target>Untergeordnete Orte</target>
+      </segment>
+    </unit>
+    <unit id="location.complete">
+      <segment>
+        <source>Complete</source>
+        <target>Vollständig</target>
+      </segment>
+    </unit>
+    <unit id="location.partial">
+      <segment>
+        <source>Partial</source>
+        <target>Teilweise</target>
+      </segment>
+    </unit>
+    <unit id="location.notInventoried">
+      <segment>
+        <source>Not inventoried</source>
+        <target>Nicht erfasst</target>
+      </segment>
+    </unit>
+    <unit id="location.itemsHere">
+      <segment>
+        <source>Items at this location</source>
+        <target>Artikel an diesem Ort</target>
+      </segment>
+    </unit>
+    <unit id="location.itemsCount">
+      <segment>
+        <source>items</source>
+        <target>Artikel</target>
+      </segment>
+    </unit>
+    <unit id="location.itemImage">
+      <segment>
+        <source>Image</source>
+        <target>Bild</target>
+      </segment>
+    </unit>
+    <unit id="location.itemName">
+      <segment>
+        <source>Name</source>
+        <target>Name</target>
+      </segment>
+    </unit>
+    <unit id="location.itemCategory">
+      <segment>
+        <source>Category</source>
+        <target>Kategorie</target>
+      </segment>
+    </unit>
+    <unit id="location.itemQuantity">
+      <segment>
+        <source>Quantity</source>
+        <target>Menge</target>
+      </segment>
+    </unit>
+    <unit id="location.itemTags">
+      <segment>
+        <source>Tags</source>
+        <target>Tags</target>
+      </segment>
+    </unit>
+    <unit id="location.noItems">
+      <segment>
+        <source>No items at this location.</source>
+        <target>Keine Artikel an diesem Ort vorhanden.</target>
+      </segment>
+    </unit>
+    <unit id="location.loading">
+      <segment>
+        <source>Loading...</source>
+        <target>Lade...</target>
+      </segment>
+    </unit>
+    <unit id="location.toLocations">
+      <segment>
+        <source>Locations Overview</source>
+        <target>Orte-Übersicht</target>
+      </segment>
+    </unit>
+
+    <!-- Location Overview Page -->
+    <unit id="locations.title">
+      <segment>
+        <source>Locations Overview</source>
+        <target>Orte-Übersicht</target>
+      </segment>
+    </unit>
+    <unit id="locations.toItems">
+      <segment>
+        <source>Item List</source>
+        <target>Artikelliste</target>
+      </segment>
+    </unit>
+    <unit id="locations.toSettings">
+      <segment>
+        <source>Settings</source>
+        <target>Einstellungen</target>
+      </segment>
+    </unit>
+    <unit id="locations.totalLocations">
+      <segment>
+        <source>Total locations</source>
+        <target>Orte gesamt</target>
+      </segment>
+    </unit>
+    <unit id="locations.complete">
+      <segment>
+        <source>Complete</source>
+        <target>Vollständig</target>
+      </segment>
+    </unit>
+    <unit id="locations.partial">
+      <segment>
+        <source>Partial</source>
+        <target>Teilweise</target>
+      </segment>
+    </unit>
+    <unit id="locations.notInventoried">
+      <segment>
+        <source>Not inventoried</source>
+        <target>Nicht erfasst</target>
+      </segment>
+    </unit>
+    <unit id="locations.search">
+      <segment>
+        <source>Search locations...</source>
+        <target>Orte suchen...</target>
+      </segment>
+    </unit>
+    <unit id="locations.filterStatus">
+      <segment>
+        <source>Status:</source>
+        <target>Status:</target>
+      </segment>
+    </unit>
+    <unit id="locations.allStatuses">
+      <segment>
+        <source>All</source>
+        <target>Alle</target>
+      </segment>
+    </unit>
+    <unit id="locations.statusComplete">
+      <segment>
+        <source>Complete</source>
+        <target>Vollständig</target>
+      </segment>
+    </unit>
+    <unit id="locations.statusPartial">
+      <segment>
+        <source>Partial</source>
+        <target>Teilweise</target>
+      </segment>
+    </unit>
+    <unit id="locations.statusNone">
+      <segment>
+        <source>Not inventoried</source>
+        <target>Nicht erfasst</target>
+      </segment>
+    </unit>
+    <unit id="locations.treeView">
+      <segment>
+        <source>Tree View</source>
+        <target>Baumansicht</target>
+      </segment>
+    </unit>
+    <unit id="locations.cardView">
+      <segment>
+        <source>Card View</source>
+        <target>Kachelansicht</target>
+      </segment>
+    </unit>
+    <unit id="locations.noLocations">
+      <segment>
+        <source>No locations found.</source>
+        <target>Keine Orte gefunden.</target>
+      </segment>
+    </unit>
+
+    <!-- Tags Overview -->
+    <unit id="tags.title">
+      <segment>
+        <source>Tags Overview</source>
+        <target>Tags-Übersicht</target>
+      </segment>
+    </unit>
+    <unit id="tags.toItems">
+      <segment>
+        <source>Item List</source>
+        <target>Artikelliste</target>
+      </segment>
+    </unit>
+    <unit id="tags.toLocations">
+      <segment>
+        <source>Locations</source>
+        <target>Orte</target>
+      </segment>
+    </unit>
+    <unit id="tags.toSettings">
+      <segment>
+        <source>Settings</source>
+        <target>Einstellungen</target>
+      </segment>
+    </unit>
+    <unit id="tags.totalTags">
+      <segment>
+        <source>Total Tags</source>
+        <target>Tags gesamt</target>
+      </segment>
+    </unit>
+    <unit id="tags.totalAssignments">
+      <segment>
+        <source>Assignments</source>
+        <target>Zuweisungen</target>
+      </segment>
+    </unit>
+    <unit id="tags.usedTags">
+      <segment>
+        <source>Used Tags</source>
+        <target>Verwendete Tags</target>
+      </segment>
+    </unit>
+    <unit id="tags.unusedTags">
+      <segment>
+        <source>Unused Tags</source>
+        <target>Unbenutzte Tags</target>
+      </segment>
+    </unit>
+    <unit id="tags.search">
+      <segment>
+        <source>Search tags...</source>
+        <target>Tags suchen...</target>
+      </segment>
+    </unit>
+    <unit id="tags.filterUsage">
+      <segment>
+        <source>Usage:</source>
+        <target>Nutzung:</target>
+      </segment>
+    </unit>
+    <unit id="tags.allTags">
+      <segment>
+        <source>All</source>
+        <target>Alle</target>
+      </segment>
+    </unit>
+    <unit id="tags.filterUsed">
+      <segment>
+        <source>Used</source>
+        <target>Verwendet</target>
+      </segment>
+    </unit>
+    <unit id="tags.filterUnused">
+      <segment>
+        <source>Unused</source>
+        <target>Unbenutzt</target>
+      </segment>
+    </unit>
+    <unit id="tags.items">
+      <segment>
+        <source>Items</source>
+        <target>Artikel</target>
+      </segment>
+    </unit>
+    <unit id="tags.noTags">
+      <segment>
+        <source>No tags found.</source>
+        <target>Keine Tags gefunden.</target>
+      </segment>
+    </unit>
+
+    <!-- Tag Detail -->
+    <unit id="tag.toTags">
+      <segment>
+        <source>Tags Overview</source>
+        <target>Tags-Übersicht</target>
+      </segment>
+    </unit>
+    <unit id="tag.toItems">
+      <segment>
+        <source>Item List</source>
+        <target>Artikelliste</target>
+      </segment>
+    </unit>
+    <unit id="tag.itemsWithTag">
+      <segment>
+        <source>Items with this tag</source>
+        <target>Artikel mit diesem Tag</target>
+      </segment>
+    </unit>
+    <unit id="tag.shareLink">
+      <segment>
+        <source>Direct link to this tag</source>
+        <target>Direktlink zu diesem Tag</target>
+      </segment>
+    </unit>
+    <unit id="tag.copyLink">
+      <segment>
+        <source>Copy</source>
+        <target>Kopieren</target>
+      </segment>
+    </unit>
+    <unit id="tag.copied">
+      <segment>
+        <source>Copied!</source>
+        <target>Kopiert!</target>
+      </segment>
+    </unit>
+    <unit id="tag.itemsHere">
+      <segment>
+        <source>Items with this tag</source>
+        <target>Artikel mit diesem Tag</target>
+      </segment>
+    </unit>
+    <unit id="tag.itemImage">
+      <segment>
+        <source>Image</source>
+        <target>Bild</target>
+      </segment>
+    </unit>
+    <unit id="tag.itemName">
+      <segment>
+        <source>Name</source>
+        <target>Name</target>
+      </segment>
+    </unit>
+    <unit id="tag.itemCategory">
+      <segment>
+        <source>Category</source>
+        <target>Kategorie</target>
+      </segment>
+    </unit>
+    <unit id="tag.itemLocation">
+      <segment>
+        <source>Location</source>
+        <target>Ort</target>
+      </segment>
+    </unit>
+    <unit id="tag.itemTags">
+      <segment>
+        <source>Tags</source>
+        <target>Tags</target>
+      </segment>
+    </unit>
+    <unit id="tag.noItems">
+      <segment>
+        <source>No items with this tag.</source>
+        <target>Keine Artikel mit diesem Tag vorhanden.</target>
+      </segment>
+    </unit>
+    <unit id="tag.loading">
+      <segment>
+        <source>Loading...</source>
+        <target>Lade...</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
