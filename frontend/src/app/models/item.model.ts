@@ -31,19 +31,40 @@ export interface Location {
   name: string;
   parent_id?: number;
   path?: string;
+  description?: string;
+  inventory_status?: 'none' | 'partial' | 'complete';
+  item_count?: number;
   children?: Location[];
   created_at?: string;
+}
+
+export interface LocationDetails {
+  location: Location;
+  items: Item[];
+  children: Location[];
 }
 
 export interface Category {
   id: number;
   name: string;
+  item_count?: number;
   created_at?: string;
+}
+
+export interface CategoryDetails {
+  category: Category;
+  items: Item[];
 }
 
 export interface Tag {
   id: number;
   name: string;
   color: string;
+  item_count?: number;
   created_at?: string;
+}
+
+export interface TagDetails {
+  tag: Tag;
+  items: Item[];
 }

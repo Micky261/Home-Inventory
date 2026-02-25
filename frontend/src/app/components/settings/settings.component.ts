@@ -14,8 +14,15 @@ import { Category, Location, Tag } from '../../models/item.model';
       <div class="container">
         <h1 i18n="@@settings.title">Einstellungen</h1>
         <div class="header-actions">
-          <button class="btn btn-secondary" (click)="goBack()" i18n="@@settings.back">
-            ← Zurück zur Übersicht
+          <nav class="main-nav">
+            <a class="nav-item" (click)="goToItems()">📦 Artikel</a>
+            <a class="nav-item" (click)="goToLocations()">📍 Orte</a>
+            <a class="nav-item" (click)="goToTags()">🏷️ Tags</a>
+            <a class="nav-item" (click)="goToCategories()">📁 Kategorien</a>
+            <span class="nav-item active">⚙️ Einstellungen</span>
+          </nav>
+          <button class="btn btn-secondary" (click)="logout()" i18n="@@app.logout">
+            Abmelden
           </button>
         </div>
       </div>
@@ -110,9 +117,16 @@ import { Category, Location, Tag } from '../../models/item.model';
 
           <div class="items-list">
             <div *ngFor="let location of flatLocations" class="item-row location-row">
-              <span class="location-path" *ngIf="editingLocation !== location.id">
-                {{ location.path || location.name }}
-              </span>
+              <div class="location-info" *ngIf="editingLocation !== location.id">
+                <span class="location-path">
+                  {{ location.path || location.name }}
+                </span>
+                <span class="inventory-status" [class]="'status-' + (location.inventory_status || 'none')">
+                  <span *ngIf="location.inventory_status === 'complete'" i18n="@@settings.statusComplete">Vollständig</span>
+                  <span *ngIf="location.inventory_status === 'partial'" i18n="@@settings.statusPartial">Teilweise</span>
+                  <span *ngIf="!location.inventory_status || location.inventory_status === 'none'" i18n="@@settings.statusNone">Nicht erfasst</span>
+                </span>
+              </div>
               <div *ngIf="editingLocation === location.id" class="edit-location">
                 <select [(ngModel)]="editLocationParent">
                   <option [value]="null" i18n="@@settings.topLevel">- Oberste Ebene -</option>
@@ -128,6 +142,15 @@ import { Category, Location, Tag } from '../../models/item.model';
                 />
               </div>
               <div class="item-actions">
+                <button
+                  *ngIf="editingLocation !== location.id"
+                  class="icon-btn"
+                  (click)="goToLocationDetail(location.id)"
+                  title="Details anzeigen"
+                  i18n-title="@@settings.viewDetails"
+                >
+                  📋
+                </button>
                 <button
                   *ngIf="editingLocation !== location.id"
                   class="icon-btn"
@@ -450,6 +473,34 @@ import { Category, Location, Tag } from '../../models/item.model';
     </div>
   `,
   styles: [`
+    .main-nav {
+      display: flex;
+      gap: 4px;
+      background: rgba(255,255,255,0.1);
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .nav-item {
+      padding: 8px 14px;
+      border-radius: 4px;
+      color: white;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .nav-item.active {
+      background: rgba(255,255,255,0.25);
+      font-weight: 600;
+      cursor: default;
+    }
+
     .statistics-section {
       background: white;
       border-radius: 8px;
@@ -707,9 +758,39 @@ import { Category, Location, Tag } from '../../models/item.model';
       background-color: #f8f9fa;
     }
 
+    .location-row .location-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
     .location-row .location-path {
       font-family: monospace;
       color: #555;
+    }
+
+    .inventory-status {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .inventory-status.status-complete {
+      background: #27ae60;
+      color: white;
+    }
+
+    .inventory-status.status-partial {
+      background: #f39c12;
+      color: white;
+    }
+
+    .inventory-status.status-none {
+      background: #e74c3c;
+      color: white;
     }
 
     .edit-location, .edit-tag {
@@ -1192,8 +1273,29 @@ export class SettingsComponent implements OnInit {
     this.editingTag = null;
   }
 
-  goBack() {
+  goToItems() {
     this.router.navigate(['/items']);
+  }
+
+  goToLocations() {
+    this.router.navigate(['/locations']);
+  }
+
+  goToTags() {
+    this.router.navigate(['/tags']);
+  }
+
+  goToCategories() {
+    this.router.navigate(['/categories']);
+  }
+
+  logout() {
+    localStorage.removeItem('auth_token');
+    this.router.navigate(['/login']);
+  }
+
+  goToLocationDetail(id: number) {
+    this.router.navigate(['/location', id]);
   }
 
   loadStatistics() {
