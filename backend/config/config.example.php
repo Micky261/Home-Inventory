@@ -16,6 +16,6 @@ return [
         'password' => 'changeme' // CHANGE THIS!
     ],
     'cors' => [
-        'origin' => 'http://localhost:4200'
+        'origin' => 'http://localhost:4268'
     ]
 ];

@@ -26,7 +26,7 @@ php migrate.php
 # Or on Windows: migrate.bat (from project root)
 
 # Start PHP development server (from backend/public/)
-php -S localhost:9000 router.php
+php -S localhost:9268 router.php
 # Or on Windows: start-backend.bat (from project root)
 
 # Test database initialization
@@ -39,7 +39,7 @@ php regenerate-thumbnails.php
 # Or on Windows: regenerate-thumbnails.bat (from project root)
 ```
 
-**Backend runs at:** `http://localhost:9000`
+**Backend runs at:** `http://localhost:9268`
 
 ### Frontend
 
@@ -49,7 +49,7 @@ cd frontend
 yarn install
 
 # Start development server
-yarn start  # Runs on http://localhost:4200
+yarn start  # Runs on http://localhost:4268
 
 # Build for production (both languages)
 yarn build
@@ -65,7 +65,7 @@ yarn ng extract-i18n --output-path src/locale
 yarn watch
 ```
 
-**Frontend runs at:** `http://localhost:4200`
+**Frontend runs at:** `http://localhost:4268`
 
 ### Docker
 

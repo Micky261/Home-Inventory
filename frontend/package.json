@@ -1,10 +1,10 @@
 {
   "name": "home-inventory-frontend",
   "version": "1.0.0",
-  "packageManager": "yarn@4.10.3",
+  "packageManager": "yarn@4.12.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --port 4268",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
