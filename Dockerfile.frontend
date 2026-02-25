@@ -3,17 +3,21 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY frontend/package*.json ./
+# Enable Corepack for Yarn Berry
+RUN corepack enable
+
+# Copy package files and Yarn config
+COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
+COPY frontend/.yarn ./.yarn
 
 # Install dependencies
-RUN npm ci
+RUN yarn install --immutable
 
 # Copy source files
 COPY frontend/ ./
 
 # Build for production with German locale
-RUN npm run build -- --configuration=production --localize
+RUN yarn build --configuration=production --localize
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine
