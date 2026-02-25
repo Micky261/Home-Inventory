@@ -12,15 +12,17 @@ frontend/.yarn/*
 !frontend/.yarn/versions
 frontend/.pnp.*
 
-# Database
-database/*.db
-database/*.db-journal
+# Database and backups
+database/
+*.db
+*.db-journal
+*.db-bak
+*.sql.bak
 
-# Uploads (optional - you may want to track these)
-uploads/images/*
-uploads/datasheets/*
-!uploads/images/.gitkeep
-!uploads/datasheets/.gitkeep
+# Uploads (images, thumbnails, documents)
+uploads/images/
+uploads/thumbnails/
+uploads/datasheets/
 
 # IDE
 .vscode/
@@ -42,5 +44,3 @@ backend/config/config.php
 
 # Docker
 data/
-data/*.db
-data/*.db-journal
