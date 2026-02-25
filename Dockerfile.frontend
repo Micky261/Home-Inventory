@@ -16,8 +16,9 @@ RUN yarn install --immutable
 # Copy source files
 COPY frontend/ ./
 
-# Build for production with German locale
-RUN yarn build --configuration=production --localize
+# Build for production (all locales)
+RUN yarn build --configuration=production --localize \
+    && echo "Build output:" && ls -la dist/home-inventory/browser/
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine
