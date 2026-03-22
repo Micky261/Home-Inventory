@@ -105,6 +105,13 @@ export class ApiService {
     });
   }
 
+  autocompleteField(field: string, query: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/items/autocomplete/${field}`, {
+      headers: this.getHeaders(),
+      params: new HttpParams().set('q', query)
+    });
+  }
+
   bulkUpdateItems(itemIds: number[], updates: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/items/bulk-update`, {
       item_ids: itemIds,

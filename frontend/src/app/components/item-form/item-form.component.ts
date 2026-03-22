@@ -154,7 +154,12 @@ import { ApiService } from '../../services/api.service';
                   type="text"
                   [(ngModel)]="formData.hersteller"
                   name="hersteller"
+                  (input)="onHerstellerInput($event)"
+                  list="hersteller-suggestions"
                 />
+                <datalist id="hersteller-suggestions">
+                  <option *ngFor="let s of herstellerSuggestions" [value]="s"></option>
+                </datalist>
               </div>
 
               <div class="form-group">
@@ -163,7 +168,12 @@ import { ApiService } from '../../services/api.service';
                   type="text"
                   [(ngModel)]="formData.haendler"
                   name="haendler"
+                  (input)="onHaendlerInput($event)"
+                  list="haendler-suggestions"
                 />
+                <datalist id="haendler-suggestions">
+                  <option *ngFor="let s of haendlerSuggestions" [value]="s"></option>
+                </datalist>
               </div>
             </div>
 
@@ -275,8 +285,15 @@ import { ApiService } from '../../services/api.service';
             <div class="form-group">
               <label i18n="@@form.image">Bild</label>
               <div class="image-upload-container">
-                <div class="file-upload" (click)="imageInput.click(); $event.stopPropagation()">
-                  <span i18n="@@form.clickToUploadImage">Klicken zum Hochladen (JPG, PNG, GIF, WebP)</span>
+                <div class="file-upload"
+                  [class.drag-over]="imageDragOver"
+                  (click)="imageInput.click(); $event.stopPropagation()"
+                  (dragover)="onImageDragOver($event)"
+                  (dragleave)="imageDragOver = false"
+                  (drop)="onImageDrop($event)"
+                >
+                  <span *ngIf="!imageDragOver" i18n="@@form.clickToUploadImage">Klicken zum Hochladen (JPG, PNG, GIF, WebP)</span>
+                  <span *ngIf="imageDragOver" class="drop-hint" i18n="@@form.dropImage">Bild hier ablegen</span>
                   <input
                     #imageInput
                     type="file"
@@ -537,6 +554,16 @@ import { ApiService } from '../../services/api.service';
       font-size: 16px;
       font-weight: 600;
     }
+
+    .file-upload.drag-over {
+      border: 2px dashed #3498db;
+      background: #ebf5fb;
+    }
+
+    .drop-hint {
+      color: #3498db;
+      font-weight: 600;
+    }
   `]
 })
 export class ItemFormComponent implements OnInit {
@@ -549,6 +576,9 @@ export class ItemFormComponent implements OnInit {
   datasheetDownloadStatus = '';
   downloadingWeitereDatei = false;
   weitereDateiDownloadStatus = '';
+
+  // Drag & Drop
+  imageDragOver = false;
 
   // Camera
   showCamera = false;
@@ -576,6 +606,8 @@ export class ItemFormComponent implements OnInit {
   };
 
   nameSuggestions: string[] = [];
+  herstellerSuggestions: string[] = [];
+  haendlerSuggestions: string[] = [];
   categories: Category[] = [];
   tags: Tag[] = [];
   tagSearchQuery = '';
@@ -608,6 +640,26 @@ export class ItemFormComponent implements OnInit {
     if (query.length >= 2) {
       this.apiService.autocompleteNames(query).subscribe({
         next: (suggestions) => this.nameSuggestions = suggestions,
+        error: (err) => console.error('Error loading suggestions:', err)
+      });
+    }
+  }
+
+  onHerstellerInput(event: any) {
+    const query = event.target.value;
+    if (query.length >= 2) {
+      this.apiService.autocompleteField('hersteller', query).subscribe({
+        next: (suggestions) => this.herstellerSuggestions = suggestions,
+        error: (err) => console.error('Error loading suggestions:', err)
+      });
+    }
+  }
+
+  onHaendlerInput(event: any) {
+    const query = event.target.value;
+    if (query.length >= 2) {
+      this.apiService.autocompleteField('haendler', query).subscribe({
+        next: (suggestions) => this.haendlerSuggestions = suggestions,
         error: (err) => console.error('Error loading suggestions:', err)
       });
     }
@@ -651,6 +703,56 @@ export class ItemFormComponent implements OnInit {
         alert('Failed to create tag');
       }
     });
+  }
+
+  onImageDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.imageDragOver = true;
+  }
+
+  onImageDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.imageDragOver = false;
+
+    // Handle dropped files
+    if (event.dataTransfer?.files?.length) {
+      const file = event.dataTransfer.files[0];
+      if (file.type.startsWith('image/')) {
+        this.uploadImage(file);
+        return;
+      }
+    }
+
+    // Handle images dragged from browser tabs / web pages (URL)
+    const html = event.dataTransfer?.getData('text/html');
+    if (html) {
+      const match = html.match(/<img[^>]+src="([^"]+)"/i);
+      if (match && match[1]) {
+        this.uploadImageFromUrl(match[1]);
+        return;
+      }
+    }
+
+    const url = event.dataTransfer?.getData('text/uri-list') || event.dataTransfer?.getData('text/plain');
+    if (url && /^https?:\/\/.+\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
+      this.uploadImageFromUrl(url);
+    }
+  }
+
+  private uploadImageFromUrl(url: string) {
+    fetch(url)
+      .then(res => res.blob())
+      .then(blob => {
+        const ext = blob.type.split('/')[1] || 'jpg';
+        const file = new File([blob], `dropped-image.${ext}`, { type: blob.type });
+        this.uploadImage(file);
+      })
+      .catch(err => {
+        console.error('Error fetching dropped image:', err);
+        alert('Bild konnte nicht geladen werden. Ggf. CORS-Einschränkung.');
+      });
   }
 
   onImageUpload(event: any) {

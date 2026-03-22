@@ -260,6 +260,24 @@ class Item
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    public function autocompleteField($field, $query)
+    {
+        $allowed = ['hersteller', 'haendler'];
+        if (!in_array($field, $allowed)) {
+            return [];
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT DISTINCT $field
+            FROM items
+            WHERE $field LIKE :query AND $field IS NOT NULL AND $field != ''
+            ORDER BY $field
+            LIMIT 10
+        ");
+        $stmt->execute([':query' => $query . '%']);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
     public function bulkUpdate($itemIds, $updates)
     {
         try {

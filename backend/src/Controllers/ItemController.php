@@ -163,6 +163,22 @@ class ItemController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function autocompleteField(Request $request, Response $response, $args)
+    {
+        $field = $args['field'] ?? '';
+        $params = $request->getQueryParams();
+        $query = $params['q'] ?? '';
+
+        if (strlen($query) < 1) {
+            $response->getBody()->write(json_encode([]));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $values = $this->itemModel->autocompleteField($field, $query);
+        $response->getBody()->write(json_encode($values));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function bulkUpdate(Request $request, Response $response)
     {
         $body = $request->getParsedBody();

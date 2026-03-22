@@ -56,6 +56,7 @@ $app->group('/api', function ($group) use ($itemController, $locationController,
     $group->delete('/items/{id}', [$itemController, 'delete']);
     $group->post('/items/bulk-update', [$itemController, 'bulkUpdate']);
     $group->get('/items/autocomplete/names', [$itemController, 'autocomplete']);
+    $group->get('/items/autocomplete/{field}', [$itemController, 'autocompleteField']);
 
     // Locations
     $group->get('/locations', [$locationController, 'index']);
