@@ -70,17 +70,7 @@ class UploadController
         }
 
         try {
-            $context = stream_context_create([
-                'http' => [
-                    'timeout' => 15,
-                    'user_agent' => 'Mozilla/5.0',
-                ],
-                'ssl' => [
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                ],
-            ]);
-            $fileContent = @file_get_contents($url, false, $context);
+            $fileContent = $this->downloadUrl($url);
 
             if ($fileContent === false) {
                 $response->getBody()->write(json_encode(['error' => 'Failed to download image from URL']));
@@ -347,6 +337,44 @@ class UploadController
         imagedestroy($thumbnail);
 
         return true;
+    }
+
+    private function downloadUrl($url)
+    {
+        // Try curl first (more reliable for HTTPS on Windows/XAMPP)
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS => 5,
+                CURLOPT_TIMEOUT => 15,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            ]);
+            $content = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($content !== false && $httpCode >= 200 && $httpCode < 400) {
+                return $content;
+            }
+        }
+
+        // Fallback to file_get_contents
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 15,
+                'user_agent' => 'Mozilla/5.0',
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ],
+        ]);
+        $content = @file_get_contents($url, false, $context);
+        return $content !== false ? $content : false;
     }
 
     private function generateUniqueFilename($originalFilename)

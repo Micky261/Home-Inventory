@@ -716,42 +716,82 @@ export class ItemFormComponent implements OnInit {
     event.stopPropagation();
     this.imageDragOver = false;
 
-    // 1. Check for image URL from browser drag (text/html with <img> or uri-list)
-    //    Must come BEFORE files check — some browsers put a broken file object
-    //    in dataTransfer.files when dragging images from web pages.
-    const html = event.dataTransfer?.getData('text/html') || '';
-    const imgMatch = html.match(/<img[^>]+src="([^"]+)"/i);
-    if (imgMatch && imgMatch[1]) {
-      this.uploadImageFromUrl(imgMatch[1]);
-      return;
-    }
-
-    const uriList = event.dataTransfer?.getData('text/uri-list') || '';
-    if (uriList && /^https?:\/\//i.test(uriList)) {
-      this.uploadImageFromUrl(uriList.split('\n')[0].trim());
-      return;
-    }
-
-    // 2. Handle dropped files (from file system)
+    // 1. Check for actual image files (filesystem drop, or browser-provided file)
     if (event.dataTransfer?.files?.length) {
       const file = event.dataTransfer.files[0];
-      if (file.type.startsWith('image/')) {
+      if (file.type.startsWith('image/') && file.size > 0) {
         this.uploadImage(file);
         return;
       }
     }
+
+    // 2. Extract image URL from HTML (drag from web page)
+    const html = event.dataTransfer?.getData('text/html') || '';
+    const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch && imgMatch[1]) {
+      const decoded = this.decodeHtmlEntities(imgMatch[1]);
+      this.handleDroppedUrl(decoded);
+      return;
+    }
+
+    // 3. Fallback: plain URL
+    const uriList = event.dataTransfer?.getData('text/uri-list') || event.dataTransfer?.getData('text/plain') || '';
+    const firstUrl = uriList.split('\n')[0].trim();
+    if (firstUrl && /^https?:\/\//i.test(firstUrl)) {
+      this.handleDroppedUrl(firstUrl);
+      return;
+    }
   }
 
-  private uploadImageFromUrl(url: string) {
-    this.apiService.downloadImageFromUrl(url).subscribe({
-      next: (response) => {
-        this.formData.bild = response.filename;
-      },
-      error: (err) => {
-        console.error('Error downloading dropped image:', err);
-        alert('Bild konnte nicht vom Server heruntergeladen werden.');
+  private decodeHtmlEntities(str: string): string {
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = str;
+    return textarea.value;
+  }
+
+  private handleDroppedUrl(url: string) {
+    // data: URIs — convert directly to File in browser, no backend needed
+    if (url.startsWith('data:image/')) {
+      const blob = this.dataUriToBlob(url);
+      if (blob) {
+        const ext = blob.type.split('/')[1] || 'png';
+        const file = new File([blob], `dropped-image.${ext}`, { type: blob.type });
+        this.uploadImage(file);
       }
-    });
+      return;
+    }
+
+    // blob: URIs can't be sent to backend — skip
+    if (url.startsWith('blob:')) {
+      return;
+    }
+
+    // http(s) URL — let backend download it
+    if (/^https?:\/\//i.test(url)) {
+      this.apiService.downloadImageFromUrl(url).subscribe({
+        next: (response) => {
+          this.formData.bild = response.filename;
+        },
+        error: (err) => {
+          console.error('Error downloading dropped image:', err);
+        }
+      });
+    }
+  }
+
+  private dataUriToBlob(dataUri: string): Blob | null {
+    try {
+      const [header, base64] = dataUri.split(',');
+      const mime = header.match(/:(.*?);/)?.[1] || 'image/png';
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return new Blob([bytes], { type: mime });
+    } catch {
+      return null;
+    }
   }
 
   onImageUpload(event: any) {
