@@ -256,6 +256,12 @@ export class ApiService {
   }
 
   // Uploads
+  downloadImageFromUrl(url: string): Observable<{ filename: string }> {
+    return this.http.post<{ filename: string }>(`${this.apiUrl}/upload/image-from-url`, { url }, {
+      headers: this.getHeaders()
+    });
+  }
+
   uploadImage(file: File): Observable<{ filename: string }> {
     const formData = new FormData();
     formData.append('file', file);

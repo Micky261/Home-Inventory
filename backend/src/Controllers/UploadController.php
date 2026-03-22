@@ -53,6 +53,78 @@ class UploadController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function downloadImageFromUrl(Request $request, Response $response)
+    {
+        $data = json_decode($request->getBody(), true);
+
+        if (!isset($data['url']) || empty($data['url'])) {
+            $response->getBody()->write(json_encode(['error' => 'No URL provided']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        $url = $data['url'];
+
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid URL']));
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 15,
+                    'user_agent' => 'Mozilla/5.0',
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ]);
+            $fileContent = @file_get_contents($url, false, $context);
+
+            if ($fileContent === false) {
+                $response->getBody()->write(json_encode(['error' => 'Failed to download image from URL']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Detect image type from content
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->buffer($fileContent);
+
+            if (!in_array($mimeType, $this->config['uploads']['allowed_image_types'])) {
+                $response->getBody()->write(json_encode(['error' => 'URL does not point to a valid image. Type: ' . $mimeType]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Map mime type to extension
+            $extMap = [
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/gif' => 'gif',
+                'image/webp' => 'webp',
+            ];
+            $extension = $extMap[$mimeType] ?? 'jpg';
+
+            $filename = uniqid() . '_' . time() . '.' . $extension;
+            $targetPath = $this->config['uploads']['images'] . $filename;
+
+            if (file_put_contents($targetPath, $fileContent) === false) {
+                $response->getBody()->write(json_encode(['error' => 'Failed to save image']));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Generate thumbnail
+            $this->generateThumbnail($targetPath, $filename);
+
+            $response->getBody()->write(json_encode(['filename' => $filename]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['error' => 'Error downloading image: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
     public function uploadDatasheet(Request $request, Response $response)
     {
         $uploadedFiles = $request->getUploadedFiles();

@@ -716,7 +716,23 @@ export class ItemFormComponent implements OnInit {
     event.stopPropagation();
     this.imageDragOver = false;
 
-    // Handle dropped files
+    // 1. Check for image URL from browser drag (text/html with <img> or uri-list)
+    //    Must come BEFORE files check — some browsers put a broken file object
+    //    in dataTransfer.files when dragging images from web pages.
+    const html = event.dataTransfer?.getData('text/html') || '';
+    const imgMatch = html.match(/<img[^>]+src="([^"]+)"/i);
+    if (imgMatch && imgMatch[1]) {
+      this.uploadImageFromUrl(imgMatch[1]);
+      return;
+    }
+
+    const uriList = event.dataTransfer?.getData('text/uri-list') || '';
+    if (uriList && /^https?:\/\//i.test(uriList)) {
+      this.uploadImageFromUrl(uriList.split('\n')[0].trim());
+      return;
+    }
+
+    // 2. Handle dropped files (from file system)
     if (event.dataTransfer?.files?.length) {
       const file = event.dataTransfer.files[0];
       if (file.type.startsWith('image/')) {
@@ -724,35 +740,18 @@ export class ItemFormComponent implements OnInit {
         return;
       }
     }
-
-    // Handle images dragged from browser tabs / web pages (URL)
-    const html = event.dataTransfer?.getData('text/html');
-    if (html) {
-      const match = html.match(/<img[^>]+src="([^"]+)"/i);
-      if (match && match[1]) {
-        this.uploadImageFromUrl(match[1]);
-        return;
-      }
-    }
-
-    const url = event.dataTransfer?.getData('text/uri-list') || event.dataTransfer?.getData('text/plain');
-    if (url && /^https?:\/\/.+\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
-      this.uploadImageFromUrl(url);
-    }
   }
 
   private uploadImageFromUrl(url: string) {
-    fetch(url)
-      .then(res => res.blob())
-      .then(blob => {
-        const ext = blob.type.split('/')[1] || 'jpg';
-        const file = new File([blob], `dropped-image.${ext}`, { type: blob.type });
-        this.uploadImage(file);
-      })
-      .catch(err => {
-        console.error('Error fetching dropped image:', err);
-        alert('Bild konnte nicht geladen werden. Ggf. CORS-Einschränkung.');
-      });
+    this.apiService.downloadImageFromUrl(url).subscribe({
+      next: (response) => {
+        this.formData.bild = response.filename;
+      },
+      error: (err) => {
+        console.error('Error downloading dropped image:', err);
+        alert('Bild konnte nicht vom Server heruntergeladen werden.');
+      }
+    });
   }
 
   onImageUpload(event: any) {
